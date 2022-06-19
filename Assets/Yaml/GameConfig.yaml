@@ -1,6 +1,6 @@
-newBoxLoc:
+NewBoxLoc:
   x: 5
-  y: 19
+  y: 18
 FallInterval: 0.5
 Width: 10
 Height: 20

@@ -5,7 +5,7 @@ namespace Tetris {
         public float FallInterval { get; set; } = 0.5f;
         public int Width { get; set; } = 10;
         public int Height { get; set; } = 20;
-        public BoxLoc newBoxLoc = new BoxLoc {x = 5, y = 19};
+        public BoxLoc NewBoxLoc { get; set; } = new BoxLoc {x = 5, y = 19};
     }
 
     public class BoxLoc {

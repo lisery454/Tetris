@@ -61,7 +61,7 @@
 
     public class Leader : AbstractLeader {
         public void Register<T>(T node) where T : class, INode {
-            IocContainer.Add<T>(node);
+            IocContainer.Add(node);
             node.belongedLeader = this;
             node.Init();
         }

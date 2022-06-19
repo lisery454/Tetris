@@ -52,15 +52,15 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\YamlDotNet\Examples\Helpers\SampleAttribute.cs" />
-     <Compile Include="Assets\YamlDotNet\Examples\LoadingAYamlStream.cs" />
-     <Compile Include="Assets\YamlDotNet\Examples\SerializeObjectGraph.cs" />
-     <Compile Include="Assets\YamlDotNet\Examples\DeserializingMultipleDocuments.cs" />
-     <Compile Include="Assets\YamlDotNet\Examples\DeserializeObjectGraph.cs" />
-     <Compile Include="Assets\YamlDotNet\Examples\ConvertYamlToJson.cs" />
-     <Compile Include="Assets\YamlDotNet\Examples\Helpers\ITestOutputHelper.cs" />
-     <Compile Include="Assets\YamlDotNet\Examples\Helpers\ExampleRunner.cs" />
-     <None Include="Assets\YamlDotNet\Examples\YamlDotNet.Examples.asmdef" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\Helpers\SampleAttribute.cs" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\LoadingAYamlStream.cs" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\ConvertYamlToJson.cs" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\Helpers\ExampleRunner.cs" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\SerializeObjectGraph.cs" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\DeserializeObjectGraph.cs" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\Helpers\ITestOutputHelper.cs" />
+     <Compile Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\DeserializingMultipleDocuments.cs" />
+     <None Include="Assets\Scripts\Framework_v_4\Utils\YamlDotNet\Examples\YamlDotNet.Examples.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>D:/Unity/2020.3.27f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>

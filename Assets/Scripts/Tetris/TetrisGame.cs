@@ -1,5 +1,4 @@
 using FrameWork;
-using UnityEngine.SceneManagement;
 
 
 namespace Tetris {
@@ -9,41 +8,38 @@ namespace Tetris {
 
         protected override void Awake() {
             base.Awake();
-            
+
             AddConfig(ConfigRWer.ReadConfig<GameConfig>("Assets/Yaml/GameConfig.yaml"));
+            
+            OnGotoScenes.Add("StartUI", OnGotoStartUIScene);
+            OnGotoScenes.Add("MainPlay", OnGotoMainGameScene);
 
-            NewStartUILeader();
-            NewTetrisGameLeader();
+            InitStartUILeader();
         }
 
-
-        public void GotoMainGameScene() {
-            NewTetrisGameLeader();
-            SceneManager.LoadScene("MainPlay");
+        private void OnGotoMainGameScene() {
+            DeleteAllLeader();
+            InitTetrisGameLeader();
         }
 
-        public void GotoStartUIScene() {
-            NewStartUILeader();
-            SceneManager.LoadScene("StartUI");
+        private void OnGotoStartUIScene() {
+            DeleteAllLeader();
+            InitStartUILeader();
         }
 
-        public void ExitGame() {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
-        }
-
-
-        private void NewStartUILeader() {
+        private void InitStartUILeader() {
             startUILeader = new Leader();
         }
 
-        private void NewTetrisGameLeader() {
+        private void InitTetrisGameLeader() {
             tetrisGameLeader = new Leader();
             tetrisGameLeader.Register(new TetrisGameModel());
             tetrisGameLeader.Register(new TetrisLogicOperation());
+        }
+
+        private void DeleteAllLeader() {
+            startUILeader = null;
+            tetrisGameLeader = null;
         }
     }
 }

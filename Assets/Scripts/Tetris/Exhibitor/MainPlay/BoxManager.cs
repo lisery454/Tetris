@@ -15,7 +15,7 @@ namespace Tetris {
             boxMatrix = new Box[gameConfig.Width, gameConfig.Height];
             for (var w = 0; w < gameConfig.Width; w++) {
                 for (var h = 0; h < gameConfig.Height; h++) {
-                    var box = Instantiate(BoxPrefab);
+                    var box = Instantiate(BoxPrefab, transform, true);
                     box.transform.position = new Vector3(zeroX + w, zeroY + h);
                     boxMatrix[w, h] = box;
                     box.SetBoxColorAndInfo(Color.green, false);

@@ -7,7 +7,7 @@ namespace Tetris {
         [SerializeField] private Button exitBtn;
 
         private void Start() {
-            startBtn.onClick.AddListener(() => { TetrisGame.Instance.GotoMainGameScene(); });
+            startBtn.onClick.AddListener(() => { TetrisGame.Instance.ChangeScene("MainPlay"); });
 
             exitBtn.onClick.AddListener(() => { TetrisGame.Instance.ExitGame(); });
         }

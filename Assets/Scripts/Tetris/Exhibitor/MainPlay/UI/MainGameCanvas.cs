@@ -7,7 +7,7 @@ namespace Tetris {
 
         private void Start() {
             backBtn.onClick.AddListener(() => {
-                TetrisGame.Instance.GotoStartUIScene();
+                TetrisGame.Instance.ChangeScene("StartUI");
             });
         }
     }

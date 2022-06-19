@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FrameWork {
+﻿namespace FrameWork {
     public interface IOperation : INode, ICanGetOperator, ICanGetModel, ICanAddEventListener, ICanTriggerEvent { }
 
     public abstract class AbstractOperation : IOperation {
@@ -31,6 +29,8 @@ namespace FrameWork {
         public T GetModel<T>() where T : class, IModel {
             return belongedLeader.GetModel<T>();
         }
+
+        protected abstract void OnUpdate();
     }
 
 
