@@ -1,5 +1,5 @@
 ﻿namespace FrameWork {
-    public interface INode : IBelongedStem {
+    public interface INode : IBelongedLeader {
         public abstract void Init();
     }
 }
