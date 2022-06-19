@@ -26,8 +26,8 @@ namespace Tetris {
         }
 
         public void CreateNewBoxOnTop() {
-            _model.BoxLoc[_model.newBoxLoc.Item1, _model.newBoxLoc.Item2] = true;
-            TriggerEvent(new CreateBoxEvt(_model.newBoxLoc.Item1, _model.newBoxLoc.Item2));
+            //_model.BoxLoc[_model.newBoxLoc.Item1, _model.newBoxLoc.Item2] = true;
+            //TriggerEvent(new CreateBoxEvt(_model.newBoxLoc.Item1, _model.newBoxLoc.Item2));
         }
     }
 }

@@ -1,13 +1,18 @@
-﻿using System;
-using FrameWork;
+﻿using FrameWork;
+using UnityEngine;
 
 namespace Tetris {
     public class TetrisGameModel : AbstractModel {
-        public override void Init() { }
+        public override void Init() {
+            var GameConfig = TetrisGame.Instance.GetConfig<GameConfig>();
+            BoxInfos = new BoxInfo[GameConfig.Width, GameConfig.Height];
+        }
+        
+        public BoxInfo[,] BoxInfos;
+    }
 
-        private static int Width = 10;
-        private static int Height = 20;
-        public Tuple<int, int> newBoxLoc = new Tuple<int, int>(5, 19);
-        public bool[,] BoxLoc = new bool[Width, Height];
+    public struct BoxInfo {
+        public Color Color;
+        public bool IsBox;
     }
 }

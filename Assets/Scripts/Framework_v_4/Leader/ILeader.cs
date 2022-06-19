@@ -1,33 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FrameWork {
-    public interface ILeader : ICanGetModel, ICanGetOperator, ICanSendCommand, ICanAddEventListener, ICanTriggerEvent { }
+﻿namespace FrameWork {
+    public interface ILeader : ICanGetModel, ICanGetOperator, ICanSendCommand, ICanAddEventListener,
+        ICanTriggerEvent { }
 
     public abstract class AbstractLeader : ILeader {
         protected AbstractLeader() {
-            IOCContainer = new Dictionary<Type, INode>();
+            IocContainer = new IOCContainer<INode>();
             eventDispatcher = new EventDispatcher();
         }
 
         #region IOC 注册和获取后台组件
 
-        protected readonly Dictionary<Type, INode> IOCContainer;
-
-        private T Get<T>() where T : class, INode {
-            if (IOCContainer.TryGetValue(typeof(T), out var component)) {
-                return (T) component;
-            }
-
-            return null;
-        }
+        public readonly IOCContainer<INode> IocContainer;
 
         public T GetOperation<T>() where T : class, IOperation {
-            return Get<T>();
+            return IocContainer.Get<T>();
         }
 
         public T GetModel<T>() where T : class, IModel {
-            return Get<T>();
+            return IocContainer.Get<T>();
         }
 
         #endregion
@@ -70,14 +60,14 @@ namespace FrameWork {
     }
 
     public class Leader : AbstractLeader {
-        public void Register<T>(T node) where T : INode {
-            IOCContainer.Add(typeof(T), node);
+        public void Register<T>(T node) where T : class, INode {
+            IocContainer.Add<T>(node);
             node.belongedLeader = this;
             node.Init();
         }
 
-        public void UnRegister<T>(T node) where T : INode {
-            IOCContainer.Remove(typeof(T));
+        public void UnRegister<T>(T node) where T : class, INode {
+            IocContainer.Remove<T>();
             node.belongedLeader = null;
         }
     }

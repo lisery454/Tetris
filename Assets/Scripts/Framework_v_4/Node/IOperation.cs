@@ -1,4 +1,6 @@
-﻿namespace FrameWork {
+﻿using System;
+
+namespace FrameWork {
     public interface IOperation : INode, ICanGetOperator, ICanGetModel, ICanAddEventListener, ICanTriggerEvent { }
 
     public abstract class AbstractOperation : IOperation {

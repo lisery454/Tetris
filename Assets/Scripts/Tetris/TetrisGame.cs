@@ -9,6 +9,9 @@ namespace Tetris {
 
         protected override void Awake() {
             base.Awake();
+            
+            AddConfig(ConfigRWer.ReadConfig<GameConfig>("Assets/Yaml/GameConfig.yaml"));
+
             NewStartUILeader();
             NewTetrisGameLeader();
         }
