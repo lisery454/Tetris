@@ -12,6 +12,9 @@ namespace Tetris {
             else if (Input.GetKeyDown(KeyCode.S)) {
                 SendCommand(new MoveBoxCmd(MoveDir.Down));
             }
+            else if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)) {
+                SendCommand<RotBoxCmd>();
+            }
         }
     }
 }

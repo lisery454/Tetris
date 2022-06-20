@@ -30,9 +30,13 @@ namespace Tetris {
         private void UpdateBoxView(UpdateBoxViewEvt e) {
             for (var w = 0; w < gameConfig.Width; w++) {
                 for (var h = 0; h < gameConfig.Height; h++) {
-                    var boxInfo = e.BoxInfos[w, h];
+                    var boxInfo = e.StaticBoxInfo[w, h];
                     boxMatrix[w, h].SetBoxColorAndInfo(boxInfo.Color, boxInfo.IsBox);
                 }
+            }
+
+            foreach (var info in e.DynamicBoxInfo) {
+                boxMatrix[info.X, info.Y].SetBoxColorAndInfo(info.Color, true);
             }
         }
     }

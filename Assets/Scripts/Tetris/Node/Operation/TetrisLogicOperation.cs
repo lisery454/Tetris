@@ -3,26 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using FrameWork;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Tetris {
     public class TetrisLogicOperation : AbstractOperation {
         private TetrisGameModel _model;
-        private List<BoxLoc> currentBoxGroup;
         private GameConfig _gameConfig;
+        
         private float time;
-        private Queue<Action> MoveQueue;
+        private Queue<Action> OperationQueue;
+        private List<List<DynamicBoxInfo>> BoxGroupPrefabs;
+        private List<FloatTuple> BoxGroupRotCenter;
 
         public override void Init() {
             _model = GetModel<TetrisGameModel>();
-            currentBoxGroup = new List<BoxLoc>();
             _gameConfig = TetrisGame.Instance.GetConfig<GameConfig>();
-            MoveQueue = new Queue<Action>();
+            OperationQueue = new Queue<Action>();
+            BoxGroupPrefabs = new List<List<DynamicBoxInfo>>();
+            BoxGroupRotCenter = new List<FloatTuple>();
 
-            //$$
-            currentBoxGroup.Add(new BoxLoc {x = _gameConfig.NewBoxLoc.x, y = _gameConfig.NewBoxLoc.y});
-            _model.BoxInfos[_gameConfig.NewBoxLoc.x, _gameConfig.NewBoxLoc.y].Color = Color.magenta;
-            _model.BoxInfos[_gameConfig.NewBoxLoc.x, _gameConfig.NewBoxLoc.y].IsBox = true;
+            foreach (var DBIs in
+                _gameConfig.BoxGroupPrefabs.Select(boxLocs =>
+                    boxLocs.Select(boxLoc => new DynamicBoxInfo(boxLoc.X, boxLoc.Y)).ToList())) {
+                DBIs.ForEach(info => {
+                    info.X += _gameConfig.NewBoxLoc.X;
+                    info.Y += _gameConfig.NewBoxLoc.Y;
+                });
 
+                BoxGroupPrefabs.Add(DBIs);
+            }
+
+            BoxGroupRotCenter = _gameConfig.BoxGroupSRS.Clone();
+            BoxGroupRotCenter.ForEach(tuple => {
+                tuple.X += _gameConfig.NewBoxLoc.X;
+                tuple.Y += _gameConfig.NewBoxLoc.Y;
+            });
+
+            NextBoxGroup();
+            TriggerEvent(new UpdateBoxViewEvt(_model.StaticBoxInfos, _model.DynamicBoxInfos));
 
             TetrisGame.Instance.OnUpdate += OnUpdate;
         }
@@ -32,191 +50,240 @@ namespace Tetris {
             if (time > _gameConfig.FallInterval) {
                 time -= _gameConfig.FallInterval;
 
-                MoveQueue.Enqueue(MoveDownOneGrid);
-                Debug.Log("MoveDownOneGrid");
+                OperationQueue.Enqueue(MoveDownOneGrid);
             }
 
-            while (MoveQueue.Count > 0) {
-                MoveQueue.Dequeue().Invoke();
+            while (OperationQueue.Count > 0) {
+                OperationQueue.Dequeue().Invoke();
             }
         }
 
+        /// <summary>
+        /// 移动动态方块
+        /// </summary>
+        /// <param name="moveDir"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public void MoveBox(MoveDir moveDir) {
             switch (moveDir) {
                 case MoveDir.Down:
-                    MoveQueue.Enqueue(MoveDown);
-                    Debug.Log("Down");
+                    OperationQueue.Enqueue(MoveDown);
                     break;
                 case MoveDir.Left:
-                    MoveQueue.Enqueue(MoveLeft);
-                    Debug.Log("Left");
+                    OperationQueue.Enqueue(MoveLeft);
                     break;
                 case MoveDir.Right:
-                    MoveQueue.Enqueue(MoveRight);
-                    Debug.Log("Right");
+                    OperationQueue.Enqueue(MoveRight);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(moveDir), moveDir, null);
             }
-
-            TriggerEvent(new UpdateBoxViewEvt(_model.BoxInfos));
         }
 
+        /// <summary>
+        /// 向右移
+        /// </summary>
         private void MoveRight() {
-            //暂时先存起来
-            var tempBoxLocGroup = new List<BoxLoc>(currentBoxGroup);
-            var tempBoxColorGroup = new List<Color>();
-            foreach (var boxLoc in tempBoxLocGroup) {
-                tempBoxColorGroup.Add(_model.BoxInfos[boxLoc.x, boxLoc.y].Color);
-                _model.BoxInfos[boxLoc.x, boxLoc.y].IsBox = false;
-            }
-
-
             //判断是不是到边了或者碰到方块了
-            if (tempBoxLocGroup.Any(boxLoc =>
-                boxLoc.x + 1 >= _gameConfig.Width || _model.BoxInfos[boxLoc.x + 1, boxLoc.y].IsBox)) {
-                foreach (var loc in tempBoxLocGroup) { //重新放回去
-                    _model.BoxInfos[loc.x, loc.y].IsBox = true;
-                }
+            if (_model.DynamicBoxInfos.Any(
+                dynamicBoxInfo =>
+                    dynamicBoxInfo.X + 1 >= _gameConfig.Width ||
+                    _model.StaticBoxInfos[dynamicBoxInfo.X + 1, dynamicBoxInfo.Y].IsBox)) {
+                return;
             }
-            else {
-                //不然右移一格
-                foreach (var t in tempBoxLocGroup)
-                    t.x += 1;
-                currentBoxGroup = tempBoxLocGroup;
-                for (var i = 0; i < tempBoxLocGroup.Count; i++) {
-                    _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y].Color = tempBoxColorGroup[i];
-                    _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y].IsBox = true;
-                }
 
-                //更新视图
-                TriggerEvent(new UpdateBoxViewEvt(_model.BoxInfos));
-            }
+            //不然右移一格
+            _model.DynamicBoxInfos.ForEach(info => { info.X++; });
+            _model.DynamicBoxGroupRotCenter.X++;
+
+            //更新视图
+            TriggerEvent(new UpdateBoxViewEvt(_model.StaticBoxInfos, _model.DynamicBoxInfos));
         }
 
+        /// <summary>
+        /// 向左移
+        /// </summary>
         private void MoveLeft() {
-            //暂时先存起来
-            var tempBoxLocGroup = new List<BoxLoc>(currentBoxGroup);
-            var tempBoxColorGroup = new List<Color>();
-            foreach (var boxLoc in tempBoxLocGroup) {
-                tempBoxColorGroup.Add(_model.BoxInfos[boxLoc.x, boxLoc.y].Color);
-                _model.BoxInfos[boxLoc.x, boxLoc.y].IsBox = false;
+            //判断是不是到边了或者碰到方块了
+            if (_model.DynamicBoxInfos.Any(
+                dynamicBoxInfo =>
+                    dynamicBoxInfo.X - 1 < 0 ||
+                    _model.StaticBoxInfos[dynamicBoxInfo.X - 1, dynamicBoxInfo.Y].IsBox)) {
+                return;
             }
 
+            //不然左移一格
+            _model.DynamicBoxInfos.ForEach(info => { info.X--; });
+            _model.DynamicBoxGroupRotCenter.X--;
 
+            //更新视图
+            TriggerEvent(new UpdateBoxViewEvt(_model.StaticBoxInfos, _model.DynamicBoxInfos));
+        }
+
+        /// <summary>
+        /// 直接落地
+        /// </summary>
+        private void MoveDown() {
+            //如果没有落到底部或其他方块上
+            while (!IsFallOnBottomOrBox()) {
+                //下降一格
+                _model.DynamicBoxInfos.ForEach(info => { info.Y--; });
+                _model.DynamicBoxGroupRotCenter.Y--;
+            }
+
+            SetDynamicToStatic();
+            CheckEliminate();
+            NextBoxGroup();
+
+            //更新视图
+            TriggerEvent(new UpdateBoxViewEvt(_model.StaticBoxInfos, _model.DynamicBoxInfos));
+        }
+
+        /// <summary>
+        /// 向下移动一格
+        /// </summary>
+        private void MoveDownOneGrid() {
             //判断是不是到边了或者碰到方块了
-            if (tempBoxLocGroup.Any(boxLoc =>
-                boxLoc.x - 1 < 0 || _model.BoxInfos[boxLoc.x - 1, boxLoc.y].IsBox)) {
-                foreach (var loc in tempBoxLocGroup) { //重新放回去
-                    _model.BoxInfos[loc.x, loc.y].IsBox = true;
-                }
+            if (!IsFallOnBottomOrBox()) {
+                //不然下移一格
+                _model.DynamicBoxInfos.ForEach(info => { info.Y--; });
+                _model.DynamicBoxGroupRotCenter.Y--;
             }
             else {
-                //不然左移一格
-                foreach (var t in tempBoxLocGroup)
-                    t.x -= 1;
-                currentBoxGroup = tempBoxLocGroup;
-                for (var i = 0; i < tempBoxLocGroup.Count; i++) {
-                    _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y].Color = tempBoxColorGroup[i];
-                    _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y].IsBox = true;
-                }
-
-                //更新视图
-                TriggerEvent(new UpdateBoxViewEvt(_model.BoxInfos));
-            }
-        }
-
-        private void MoveDown() {
-            var tempBoxLocGroup = new List<BoxLoc>(currentBoxGroup);
-            var tempBoxColorGroup = new List<Color>();
-
-            foreach (var boxLoc in tempBoxLocGroup) {
-                tempBoxColorGroup.Add(_model.BoxInfos[boxLoc.x, boxLoc.y].Color);
-                _model.BoxInfos[boxLoc.x, boxLoc.y].IsBox = false;
+                SetDynamicToStatic();
+                CheckEliminate();
+                NextBoxGroup();
             }
 
-
-            //如果没有落到底部或其他方块上
-            while (!IsFallOnBottom(tempBoxLocGroup)) {
-                //下降一格
-                foreach (var t in tempBoxLocGroup) {
-                    t.y -= 1;
-                }
-            }
-
-
-            //修改model数据
-            for (var i = 0; i < tempBoxLocGroup.Count; i++) {
-                _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y].Color = tempBoxColorGroup[i];
-                _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y].IsBox = true;
-            }
-
-            currentBoxGroup = tempBoxLocGroup;
 
             //更新视图
-            TriggerEvent(new UpdateBoxViewEvt(_model.BoxInfos));
+            TriggerEvent(new UpdateBoxViewEvt(_model.StaticBoxInfos, _model.DynamicBoxInfos));
         }
 
-        private void MoveDownOneGrid() {
-            var tempBoxLocGroup = new List<BoxLoc>(currentBoxGroup);
-            currentBoxGroup.Clear();
-            var tempBoxColorGroup = new List<Color>();
-
-            foreach (var boxLoc in tempBoxLocGroup) {
-                tempBoxColorGroup.Add(_model.BoxInfos[boxLoc.x, boxLoc.y].Color);
-                _model.BoxInfos[boxLoc.x, boxLoc.y].IsBox = false;
-            }
-
-            //判断是不是到底了或者是不是落到其他方块上了
-            foreach (var boxLoc in tempBoxLocGroup) {
-                if (boxLoc.y <= 0 || _model.BoxInfos[boxLoc.x, boxLoc.y - 1].IsBox) {
-                    //TODO 触发下一个方块组事件
-                    //$$
-                    foreach (var loc in currentBoxGroup) {
-                        Debug.Log($"before current loc: x:{loc.x}  y:{loc.y}");
-                    }
-
-                    currentBoxGroup.Add(new BoxLoc {x = _gameConfig.NewBoxLoc.x, y = _gameConfig.NewBoxLoc.y});
-                    Debug.Log($"config loc: x:{_gameConfig.NewBoxLoc.x}  y:{_gameConfig.NewBoxLoc.y}");
-                    foreach (var loc in currentBoxGroup) {
-                        Debug.Log($"after current loc: x:{loc.x}  y:{loc.y}");
-                    }
-
-                    _model.BoxInfos[_gameConfig.NewBoxLoc.x, _gameConfig.NewBoxLoc.y].Color = Color.magenta;
-                    _model.BoxInfos[_gameConfig.NewBoxLoc.x, _gameConfig.NewBoxLoc.y].IsBox = true;
-
-
-                    foreach (var loc in tempBoxLocGroup) { //重新放回去
-                        _model.BoxInfos[loc.x, loc.y].IsBox = true;
-                        Debug.Log("tempBoxLocGroup" + loc.x + "   " + loc.y);
-                    }
-
-
-                    Debug.Log("hello");
-
-                    return;
-                }
-            }
-
-            //下降一格
-            for (var i = 0; i < tempBoxLocGroup.Count; i++) {
-                _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y - 1].Color = tempBoxColorGroup[i];
-                _model.BoxInfos[tempBoxLocGroup[i].x, tempBoxLocGroup[i].y - 1].IsBox = true;
-                currentBoxGroup.Add(new BoxLoc {x = tempBoxLocGroup[i].x, y = tempBoxLocGroup[i].y - 1});
-            }
-
-            //更新视图
-            TriggerEvent(new UpdateBoxViewEvt(_model.BoxInfos));
+        /// <summary>
+        /// 判断是不是到底了或者碰到方块了
+        /// </summary>
+        /// <returns></returns>
+        private bool IsFallOnBottomOrBox() {
+            return _model.DynamicBoxInfos.Any(
+                dynamicBoxInfo =>
+                    dynamicBoxInfo.Y - 1 < 0 ||
+                    _model.StaticBoxInfos[dynamicBoxInfo.X, dynamicBoxInfo.Y - 1].IsBox);
         }
 
-        private bool IsFallOnBottom(List<BoxLoc> boxLocGroup) {
-            foreach (var boxLoc in boxLocGroup) {
-                if (boxLoc.y - 1 < 0 || _model.BoxInfos[boxLoc.x, boxLoc.y - 1].IsBox) {
-                    return true;
-                }
-            }
-
+        /// <summary>
+        /// 判断某个坐标是不是到边了或者碰到方块了
+        /// </summary>
+        /// <returns></returns>
+        private bool IsOnBorderOrBox(IntTuple boxLoc) {
+            if (boxLoc.X < 0 || boxLoc.X >= _gameConfig.Width)
+                return true;
+            if (boxLoc.Y < 0 || boxLoc.Y >= _gameConfig.Height)
+                return true;
+            if (_model.StaticBoxInfos[boxLoc.X, boxLoc.Y].IsBox)
+                return true;
             return false;
+        }
+
+
+        /// <summary>
+        /// 把动的方块变成静止
+        /// </summary>
+        private void SetDynamicToStatic() {
+            foreach (var info in _model.DynamicBoxInfos) {
+                _model.StaticBoxInfos[info.X, info.Y].IsBox = true;
+                _model.StaticBoxInfos[info.X, info.Y].Color = info.Color;
+            }
+
+            _model.DynamicBoxInfos = null;
+            _model.DynamicBoxGroupRotCenter = null;
+        }
+
+        /// <summary>
+        /// 判断是否要消除
+        /// </summary>
+        private void CheckEliminate() {
+            for (var h = 0; h < _gameConfig.Height;) {
+                var isAllLineBox = true;
+                var isAllLineNotBox = true;
+                //判断一行是不是全是方块
+                for (var w = 0; w < _gameConfig.Width; w++) {
+                    if (_model.StaticBoxInfos[w, h].IsBox) continue;
+                    isAllLineBox = false;
+                    break;
+                }
+
+                //判断一行是不是全不是方块
+                for (var w = 0; w < _gameConfig.Width; w++) {
+                    if (!_model.StaticBoxInfos[w, h].IsBox) continue;
+                    isAllLineNotBox = false;
+                    break;
+                }
+
+                if (isAllLineBox) {
+                    for (var nh = h; nh < _gameConfig.Height - 1; nh++) {
+                        for (var nw = 0; nw < _gameConfig.Width; nw++) {
+                            _model.StaticBoxInfos[nw, nh] = _model.StaticBoxInfos[nw, nh + 1];
+                        }
+                    }
+
+                    //最后一行
+                    for (var nw = 0; nw < _gameConfig.Width; nw++) {
+                        _model.StaticBoxInfos[nw, _gameConfig.Height - 1] = new StaticBoxInfo();
+                    }
+                }
+                else if (isAllLineNotBox) {
+                    break;
+                }
+                else {
+                    h++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 释放下一个方块组
+        /// </summary>
+        private void NextBoxGroup() {
+            var r = Random.Range(0, BoxGroupPrefabs.Count);
+            _model.DynamicBoxInfos = BoxGroupPrefabs[r].Clone();
+            _model.DynamicBoxGroupRotCenter = (FloatTuple) BoxGroupRotCenter[r].Clone();
+            var rColor = Random.ColorHSV(0f, 1f, 0.4f, 0.5f, 0.8f, 0.9f);
+
+            _model.DynamicBoxInfos.ForEach(info => { info.Color = rColor; });
+        }
+
+        /// <summary>
+        /// 旋转方块
+        /// </summary>
+        public void Rotate() {
+            OperationQueue.Enqueue(RotateDynamicBox);
+        }
+
+        /// <summary>
+        /// 旋转当前动态方块
+        /// </summary>
+        private void RotateDynamicBox() {
+            //旋转坐标
+            var beforeRotLoc = _model.DynamicBoxInfos.Select(info => new FloatTuple(info.X, info.Y)).ToList();
+            var afterRotLoc = new IntTuple[beforeRotLoc.Count];
+            for (var i = 0; i < beforeRotLoc.Count; i++) {
+                beforeRotLoc[i] -= _model.DynamicBoxGroupRotCenter;
+                beforeRotLoc[i] = _gameConfig.RotMatrix.Multiply(beforeRotLoc[i]);
+                beforeRotLoc[i] += _model.DynamicBoxGroupRotCenter;
+                afterRotLoc[i] = (IntTuple) beforeRotLoc[i];
+            }
+
+            //检测是否会碰到其他物体
+            if (afterRotLoc.Any(IsOnBorderOrBox)) return;
+
+            //更新model
+            for (var i = 0; i < _model.DynamicBoxInfos.Count; i++) {
+                _model.DynamicBoxInfos[i].X = afterRotLoc[i].X;
+                _model.DynamicBoxInfos[i].Y = afterRotLoc[i].Y;
+            }
+
+            //更新视图
+            TriggerEvent(new UpdateBoxViewEvt(_model.StaticBoxInfos, _model.DynamicBoxInfos));
         }
     }
 }

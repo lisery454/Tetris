@@ -1,11 +1,14 @@
-﻿using FrameWork;
+﻿using System.Collections.Generic;
+using FrameWork;
 
 namespace Tetris {
     public class UpdateBoxViewEvt : AbstractEvent {
-        public BoxInfo[,] BoxInfos;
+        public StaticBoxInfo[,] StaticBoxInfo { get; }
+        public List<DynamicBoxInfo> DynamicBoxInfo { get; }
 
-        public UpdateBoxViewEvt(BoxInfo[,] boxInfos) {
-            BoxInfos = boxInfos;
+        public UpdateBoxViewEvt(StaticBoxInfo[,] staticBoxInfo, List<DynamicBoxInfo> dynamicBoxInfo) {
+            StaticBoxInfo = staticBoxInfo;
+            DynamicBoxInfo = dynamicBoxInfo;
         }
     }
 }

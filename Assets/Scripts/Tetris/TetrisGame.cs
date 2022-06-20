@@ -9,8 +9,9 @@ namespace Tetris {
         protected override void Awake() {
             base.Awake();
 
+            ConfigRWer.WriteConfig(new GameConfig(), "Assets/Yaml/GameConfig.yaml");
             AddConfig(ConfigRWer.ReadConfig<GameConfig>("Assets/Yaml/GameConfig.yaml"));
-            
+
             OnGotoScenes.Add("StartUI", OnGotoStartUIScene);
             OnGotoScenes.Add("MainPlay", OnGotoMainGameScene);
 
