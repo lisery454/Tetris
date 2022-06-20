@@ -16,6 +16,7 @@ namespace Tetris {
             OnGotoScenes.Add("MainPlay", OnGotoMainGameScene);
 
             InitStartUILeader();
+            InitTetrisGameLeader();
         }
 
         private void OnGotoMainGameScene() {

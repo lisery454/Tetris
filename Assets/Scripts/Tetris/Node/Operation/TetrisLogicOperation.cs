@@ -9,7 +9,7 @@ namespace Tetris {
     public class TetrisLogicOperation : AbstractOperation {
         private TetrisGameModel _model;
         private GameConfig _gameConfig;
-        
+
         private float time;
         private Queue<Action> OperationQueue;
         private List<List<DynamicBoxInfo>> BoxGroupPrefabs;
@@ -131,7 +131,6 @@ namespace Tetris {
             }
 
             SetDynamicToStatic();
-            CheckEliminate();
             NextBoxGroup();
 
             //更新视图
@@ -150,7 +149,6 @@ namespace Tetris {
             }
             else {
                 SetDynamicToStatic();
-                CheckEliminate();
                 NextBoxGroup();
             }
 
@@ -184,7 +182,6 @@ namespace Tetris {
             return false;
         }
 
-
         /// <summary>
         /// 把动的方块变成静止
         /// </summary>
@@ -196,6 +193,9 @@ namespace Tetris {
 
             _model.DynamicBoxInfos = null;
             _model.DynamicBoxGroupRotCenter = null;
+
+            CheckEliminate();
+            CheckFail();
         }
 
         /// <summary>
@@ -236,6 +236,17 @@ namespace Tetris {
                 }
                 else {
                     h++;
+                }
+            }
+        }
+
+        private void CheckFail() {
+            for (var w = 0; w < _gameConfig.Width; w++) {
+                if (_model.StaticBoxInfos[w, _gameConfig.LimitHeight].IsBox) {
+                    //时间停止流动
+                    TetrisGame.Instance.OnUpdate -= OnUpdate;
+                    //触发游戏失败事件
+                    TriggerEvent<FailEvt>();
                 }
             }
         }

@@ -6,13 +6,16 @@ namespace Tetris {
         private float zeroX = -4.5f, zeroY = -8.5f;
         [SerializeField] private Box BoxPrefab;
         private Box[,] boxMatrix;
+        [SerializeField] private GameObject LimitLine;
         private GameConfig gameConfig;
 
 
         protected override void Awake() {
             base.Awake();
             gameConfig = TetrisGame.Instance.GetConfig<GameConfig>();
+            
             boxMatrix = new Box[gameConfig.Width, gameConfig.Height];
+            
             for (var w = 0; w < gameConfig.Width; w++) {
                 for (var h = 0; h < gameConfig.Height; h++) {
                     var box = Instantiate(BoxPrefab, transform, true);
@@ -21,6 +24,10 @@ namespace Tetris {
                     box.SetBoxColorAndInfo(Color.green, false);
                 }
             }
+
+            var LimitLinePos = LimitLine.transform.position;
+            LimitLinePos += Vector3.up * gameConfig.LimitHeight;
+            LimitLine.transform.position = LimitLinePos;
         }
 
         private void Start() {

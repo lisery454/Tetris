@@ -2,7 +2,16 @@
 
 namespace Tetris {
     public class InputManager : MainPlaySceneExhibitor {
+        private bool IsAble = true;
+
+        protected override void Awake() {
+            base.Awake();
+            AddEventListener<FailEvt>(evt => { IsAble = false; });
+        }
+
         private void Update() {
+            if (!IsAble) return;
+            
             if (Input.GetKeyDown(KeyCode.A)) {
                 SendCommand(new MoveBoxCmd(MoveDir.Left));
             }

@@ -7,7 +7,7 @@ namespace Tetris {
         public int Width { get; private set; } = 10;
         public int Height { get; private set; } = 20;
         public IntTuple NewBoxLoc { get; private set; } = new IntTuple(5, 18);
-        public int LimitHeight { get; private set; } = 16;
+        public int LimitHeight { get; private set; } = 12;
 
         public List<List<IntTuple>> BoxGroupPrefabs { get; private set; } = new List<List<IntTuple>> {
             new List<IntTuple> {

@@ -9,7 +9,7 @@ Height: 20
 NewBoxLoc:
   X: 5
   Y: 18
-LimitHeight: 16
+LimitHeight: 12
 BoxGroupPrefabs:
 - - X: -1
     Y: 0
