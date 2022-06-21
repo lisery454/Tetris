@@ -14,4 +14,10 @@ namespace Tetris {
             belongedLeader = TetrisGame.Instance.tetrisGameLeader;
         }
     }
+    
+    public abstract class EndUISceneExhibitor : AbstractExhibitor{
+        protected virtual void Awake() {
+            belongedLeader = TetrisGame.Instance.endUILeader;
+        }
+    }
 }

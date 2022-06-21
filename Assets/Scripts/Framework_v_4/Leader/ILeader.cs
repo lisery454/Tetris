@@ -66,6 +66,11 @@
             node.Init();
         }
 
+        public void RegisterWithoutInit<T>(T node) where T : class, INode {
+            IocContainer.Add(node);
+            node.belongedLeader = this;
+        }
+
         public void UnRegister<T>(T node) where T : class, INode {
             IocContainer.Remove<T>();
             node.belongedLeader = null;

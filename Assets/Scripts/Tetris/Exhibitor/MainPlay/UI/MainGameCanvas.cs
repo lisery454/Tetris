@@ -4,12 +4,14 @@ using UnityEngine.UI;
 namespace Tetris {
     public class MainGameCanvas : MainPlaySceneExhibitor {
         [SerializeField] private Button backBtn;
-        [SerializeField] private Text tipText;
+        [SerializeField] private Text scoreText;
 
         private void Start() {
-            backBtn.onClick.AddListener(() => { TetrisGame.Instance.ChangeScene("StartUI"); });
+            backBtn.onClick.AddListener(() => { TetrisGame.Instance.GotoScene("StartUI"); });
 
-            AddEventListener<FailEvt>(evt => { tipText.text = "You Fail!"; });
+            AddEventListener<GameEndEvt>(evt => { TetrisGame.Instance.GotoScene("EndUI"); });
+
+            AddEventListener<ScoreUpdateEvt>(evt => { scoreText.text = evt.Score.ToString(); });
         }
     }
 }

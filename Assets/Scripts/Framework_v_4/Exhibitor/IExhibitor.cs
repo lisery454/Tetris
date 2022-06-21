@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace FrameWork {
-    public interface IExhibitor : IBelongedLeader, ICanSendCommand, ICanAddEventListener { }
+    public interface IExhibitor : IBelongedLeader, ICanSendCommand, ICanAddEventListener, ICanGetModel { }
 
     public abstract class AbstractExhibitor : MonoBehaviour, IExhibitor {
         public void SendCommand<T>() where T : ICommand, new() {
@@ -21,5 +21,8 @@ namespace FrameWork {
         }
 
         public ILeader belongedLeader { get; set; }
+        public T GetModel<T>() where T : class, IModel {
+            return belongedLeader.GetModel<T>();
+        }
     }
 }

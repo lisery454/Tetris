@@ -218,6 +218,9 @@ namespace Tetris {
                     for (var nw = 0; nw < _gameConfig.Width; nw++) {
                         model.StaticBoxInfos[nw, _gameConfig.Height - 1] = new StaticBoxInfo();
                     }
+
+                    GetModel<ScoreModel>().Score += 10;
+                    TriggerEvent(new ScoreUpdateEvt(GetModel<ScoreModel>().Score));
                 }
                 else if (isAllLineNotBox) {
                     break;
@@ -237,7 +240,9 @@ namespace Tetris {
                     //时间停止流动
                     TetrisGame.Instance.OnUpdate -= OnUpdate;
                     //触发游戏失败事件
-                    TriggerEvent<FailEvt>();
+                    TriggerEvent<GameEndEvt>();
+
+                    return;
                 }
             }
         }

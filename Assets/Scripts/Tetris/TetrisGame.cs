@@ -9,6 +9,7 @@ namespace Tetris {
     public class TetrisGame : Game<TetrisGame> {
         public Leader startUILeader { get; private set; }
         public Leader tetrisGameLeader { get; private set; }
+        public Leader endUILeader { get; private set; }
 
         [SerializeField] private RectTransform sceneLoadPicTransform;
         [SerializeField] private GameObject sceneLoadSquarePrefab;
@@ -23,17 +24,38 @@ namespace Tetris {
             //配置
             AddConfig(ConfigRWer.ReadConfig<GameConfig>("Config/GameConfig.yaml"));
 
-            //添加进入和离开场景的动作
-            BeforeLoadScene.Add("StartUI", BeforeGotoStartUIScene);
-            BeforeLoadScene.Add("MainPlay", BeforeGotoMainGameScene);
-            AfterLoadScene.Add("StartUI", AfterGotoStartUIScene);
-            AfterLoadScene.Add("MainPlay", AfterGotoMainGameScene);
+            //默认加载动画
+            DefaultBeforeLoadSceneAnim = DefaultBeforeSceneLoad;
+            DefaultAfterLoadSceneAnim = DefaultAfterSceneLoad;
+
+            //离开场景时清除leader
+            OnLeaveSceneAfterOtherSceneLoaded.Add("StartUI", () => { startUILeader = null; });
+            OnLeaveSceneAfterOtherSceneLoaded.Add("MainPlay", () => { tetrisGameLeader = null; });
+            OnLeaveSceneAfterOtherSceneLoaded.Add("EndUI", () => { endUILeader = null; });
+
+            //在开始加载场景时
+            OnStartLoadScene.Add("StartUI", () => { startUILeader = new Leader(); });
+            OnStartLoadScene.Add("MainPlay", () => {
+                tetrisGameLeader = new Leader();
+                tetrisGameLeader.Register(new TetrisGameModel());
+                tetrisGameLeader.Register(new ScoreModel());
+                tetrisGameLeader.Register(new TetrisLogicOperation());
+            });
+
+            OnStartLoadScene.Add("EndUI", () => {
+                endUILeader = new Leader();
+                endUILeader.RegisterWithoutInit(tetrisGameLeader.GetModel<ScoreModel>());
+            });
+
+
+            //加载场景结束时
+            OnEndLoadScene.Add("MainPlay", () => { tetrisGameLeader.SendCommand<StartGameCmd>(); });
 
             //初始化场景变换的动画
             InitLoadScenePic();
 
             //转到开始场景
-            ChangeScene("StartUI");
+            GotoScene("StartUI");
         }
 
         private void InitLoadScenePic() {
@@ -54,47 +76,7 @@ namespace Tetris {
             }
         }
 
-        #region 进入和离开场景的动作
-
-        private IEnumerator BeforeGotoMainGameScene() {
-            DeleteAllLeader();
-            InitTetrisGameLeader();
-            yield return StartCoroutine(LoadPicOn());
-        }
-
-        private IEnumerator BeforeGotoStartUIScene() {
-            DeleteAllLeader();
-            InitStartUILeader();
-            yield return StartCoroutine(LoadPicOn());
-        }
-
-        private IEnumerator AfterGotoMainGameScene() {
-            yield return StartCoroutine(LoadPicOff());
-            tetrisGameLeader.SendCommand<StartGameCmd>();
-        }
-
-        private IEnumerator AfterGotoStartUIScene() {
-            yield return StartCoroutine(LoadPicOff());
-        }
-
-        #endregion
-        
-        private void InitStartUILeader() {
-            startUILeader = new Leader();
-        }
-
-        private void InitTetrisGameLeader() {
-            tetrisGameLeader = new Leader();
-            tetrisGameLeader.Register(new TetrisGameModel());
-            tetrisGameLeader.Register(new TetrisLogicOperation());
-        }
-
-        private void DeleteAllLeader() {
-            startUILeader = null;
-            tetrisGameLeader = null;
-        }
-
-        private IEnumerator LoadPicOn() {
+        private IEnumerator DefaultBeforeSceneLoad() {
             Barrier.SetActive(true);
             var waitForSeconds = new WaitForSeconds(0.3f / Column / Row);
             for (var x = 0; x < Column; x++) {
@@ -113,7 +95,7 @@ namespace Tetris {
             yield return new WaitForSeconds(0.2f);
         }
 
-        private IEnumerator LoadPicOff() {
+        private IEnumerator DefaultAfterSceneLoad() {
             var waitForSeconds = new WaitForSeconds(0.3f / Column / Row);
 
             for (var x = 0; x < Column; x++) {

@@ -6,7 +6,7 @@ namespace Tetris {
 
         protected override void Awake() {
             base.Awake();
-            AddEventListener<FailEvt>(evt => { IsAble = false; });
+            AddEventListener<GameEndEvt>(evt => { IsAble = false; });
         }
 
         private void Update() {

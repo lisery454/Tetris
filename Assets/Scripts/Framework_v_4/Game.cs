@@ -37,9 +37,40 @@ namespace FrameWork {
 
         #region Scene
 
-        public void ChangeScene(string sceneName) {
+        protected readonly Dictionary<string, Func<IEnumerator>> BeforeLoadSceneAnim =
+            new Dictionary<string, Func<IEnumerator>>();
+
+        protected readonly Dictionary<string, Func<IEnumerator>> AfterLoadSceneAnim =
+            new Dictionary<string, Func<IEnumerator>>();
+
+        protected Func<IEnumerator> DefaultBeforeLoadSceneAnim, DefaultAfterLoadSceneAnim;
+
+        protected readonly Dictionary<string, Action> OnLeaveSceneAfterOtherSceneLoaded =
+            new Dictionary<string, Action>();
+
+        protected readonly Dictionary<string, Action> OnStartLoadScene = new Dictionary<string, Action>();
+        protected readonly Dictionary<string, Action> OnEndLoadScene = new Dictionary<string, Action>();
+
+
+        public void GotoScene(string sceneName) {
             OnUpdate = null;
+
+            var beforeSceneName = SceneManager.GetActiveScene().name;
+
+            //开始加载场景时
+            if (OnStartLoadScene.ContainsKey(sceneName))
+                OnStartLoadScene[sceneName]?.Invoke();
+
+            //加载
             StartCoroutine(ChangeSceneCoroutine(sceneName));
+
+            //离开之前场景时（已经加载完了）
+            if (OnLeaveSceneAfterOtherSceneLoaded.ContainsKey(beforeSceneName))
+                OnLeaveSceneAfterOtherSceneLoaded[beforeSceneName]?.Invoke();
+
+            //结束加载时
+            if (OnEndLoadScene.ContainsKey(sceneName))
+                OnEndLoadScene[sceneName]?.Invoke();
         }
 
         public void ExitGame() {
@@ -50,17 +81,18 @@ namespace FrameWork {
 #endif
         }
 
-
-        protected readonly Dictionary<string, Func<IEnumerator>> BeforeLoadScene =
-            new Dictionary<string, Func<IEnumerator>>();
-
-        protected readonly Dictionary<string, Func<IEnumerator>> AfterLoadScene =
-            new Dictionary<string, Func<IEnumerator>>();
-
         private IEnumerator ChangeSceneCoroutine(string sceneName) {
-            yield return BeforeLoadScene[sceneName].Invoke();
+            if (BeforeLoadSceneAnim.ContainsKey(sceneName) && BeforeLoadSceneAnim[sceneName] != null)
+                yield return BeforeLoadSceneAnim[sceneName].Invoke();
+            else if (DefaultBeforeLoadSceneAnim != null)
+                yield return DefaultBeforeLoadSceneAnim;
+
             SceneManager.LoadScene(sceneName);
-            yield return AfterLoadScene[sceneName].Invoke();
+
+            if (AfterLoadSceneAnim.ContainsKey(sceneName) && AfterLoadSceneAnim[sceneName] != null)
+                yield return AfterLoadSceneAnim[sceneName].Invoke();
+            else if (DefaultAfterLoadSceneAnim != null)
+                yield return DefaultAfterLoadSceneAnim;
         }
 
         #endregion
