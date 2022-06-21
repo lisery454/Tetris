@@ -5,35 +5,55 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace FrameWork {
-    public abstract class Game<T> : Singleton<T>, ICanGetConfig where T : Component {
-        #region Config
+    public interface IGame : ICanGetConfig {
+        Action OnUpdate { get; set; } //给Node调用的时间接口
 
-        private readonly IOCContainer<IConfig> ConfigContainer = new IOCContainer<IConfig>();
+        public void GotoScene(string sceneName);
+        public void ExitGame();
+    }
 
-        public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
-            return ConfigContainer.Get<TConfig>();
+    public abstract class Game : MonoBehaviour, IGame {
+        protected virtual void Awake() {
+            LeaderFactory = new LeaderFactory(this);
+
+            DontDestroyOnLoad(this);
         }
 
+
+        #region Leader
+
+        protected LeaderFactory LeaderFactory;
+
+        #endregion
+
+        #region Config
+
+        private readonly ConfigController ConfigController = new ConfigController();
+
+
         protected void AddConfig<TConfig>(TConfig config) where TConfig : class, IConfig {
-            ConfigContainer.Add(config);
+            ConfigController.AddConfig(config);
         }
 
         protected void RemoveConfig<TConfig>() where TConfig : class, IConfig {
-            ConfigContainer.Remove<TConfig>();
+            ConfigController.RemoveConfig<TConfig>();
+        }
+
+        TConfig ICanGetConfig.GetConfig<TConfig>() {
+            return ConfigController.GetConfig<TConfig>();
         }
 
         #endregion
 
         #region Update
 
-        public Action OnUpdate; //给Node调用的时间接口
+        public Action OnUpdate { get; set; } //给Node调用的时间接口
 
         private void Update() {
             OnUpdate?.Invoke();
         }
 
         #endregion
-
 
         #region Scene
 

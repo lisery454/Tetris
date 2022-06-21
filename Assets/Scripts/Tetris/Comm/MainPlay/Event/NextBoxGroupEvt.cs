@@ -2,7 +2,7 @@
 using FrameWork;
 
 namespace Tetris {
-    public class NextBoxGroupEvt : AbstractEvent {
+    public class NextBoxGroupEvt : Event {
         public List<DynamicBoxInfo> NextBoxGroup { get; }
 
         public NextBoxGroupEvt(List<DynamicBoxInfo> nextBoxGroup) {

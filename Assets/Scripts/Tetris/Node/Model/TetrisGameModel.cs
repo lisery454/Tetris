@@ -5,9 +5,9 @@ using FrameWork;
 using UnityEngine;
 
 namespace Tetris {
-    public class TetrisGameModel : AbstractModel {
+    public class TetrisGameModel : Model {
         public override void Init() {
-            var gameConfig = TetrisGame.Instance.GetConfig<GameConfig>();
+            var gameConfig = GetConfig<GameConfig>();
             StaticBoxInfos = new StaticBoxInfo[gameConfig.Width, gameConfig.Height];
             for (var w = 0; w < gameConfig.Width; w++) {
                 for (var h = 0; h < gameConfig.Height; h++) {

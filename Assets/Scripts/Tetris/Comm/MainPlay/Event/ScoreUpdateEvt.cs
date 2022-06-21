@@ -1,7 +1,7 @@
 ﻿using FrameWork;
 
 namespace Tetris {
-    public class ScoreUpdateEvt : AbstractEvent {
+    public class ScoreUpdateEvt : Event {
         public int Score { get; set; }
 
         public ScoreUpdateEvt(int score) {

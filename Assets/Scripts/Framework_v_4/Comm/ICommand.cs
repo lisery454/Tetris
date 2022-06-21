@@ -1,12 +1,11 @@
 ﻿namespace FrameWork {
-    
     public interface ICommand : IBelongedLeader, ICanGetOperator {
         void Execute();
     }
 
-    public abstract class AbstractCommand : ICommand {
+    public abstract class Command : ICommand {
         public T GetOperation<T>() where T : class, IOperation {
-            return belongedLeader.GetOperation<T>();
+            return BelongedLeader.GetOperation<T>();
         }
 
         void ICommand.Execute() {
@@ -14,7 +13,11 @@
         }
 
         protected abstract void OnExecute();
-        public ILeader belongedLeader { get; set; }
+        public ILeader BelongedLeader { get; set; }
+
+        public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
+            return BelongedLeader.GetConfig<TConfig>();
+        }
     }
 
     public interface ICanSendCommand {

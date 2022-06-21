@@ -17,7 +17,10 @@ namespace Tetris {
 
         protected override void Awake() {
             base.Awake();
-            gameConfig = TetrisGame.Instance.GetConfig<GameConfig>();
+            AddEventListener<UpdateBoxViewEvt>(UpdateBoxView).UnregisterWhenGameObjectDestroyed(gameObject);
+            AddEventListener<NextBoxGroupEvt>(ShowNextBoxGroup).UnregisterWhenGameObjectDestroyed(gameObject);
+
+            gameConfig = GetConfig<GameConfig>();
 
             boxMatrix = new Box[gameConfig.Width, gameConfig.Height];
             ShowNextBoxList = new List<Box>();
@@ -34,11 +37,12 @@ namespace Tetris {
             var LimitLinePos = LimitLine.transform.position;
             LimitLinePos += Vector3.up * gameConfig.LimitHeight;
             LimitLine.transform.position = LimitLinePos;
-            
-            AddEventListener<UpdateBoxViewEvt>(UpdateBoxView).UnregisterWhenGameObjectDestroyed(gameObject);
-            AddEventListener<NextBoxGroupEvt>(ShowNextBoxGroup).UnregisterWhenGameObjectDestroyed(gameObject);
         }
-        
+
+        private void Start() {
+            SendCommand<StartGameCmd>();
+        }
+
 
         private void UpdateBoxView(UpdateBoxViewEvt e) {
             for (var w = 0; w < gameConfig.Width; w++) {

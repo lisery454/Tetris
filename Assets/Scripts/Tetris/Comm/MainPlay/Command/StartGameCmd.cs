@@ -1,7 +1,7 @@
 ﻿using FrameWork;
 
 namespace Tetris {
-    public class StartGameCmd : AbstractCommand {
+    public class StartGameCmd : Command {
         protected override void OnExecute() {
             GetOperation<TetrisLogicOperation>().StartGame();
         }

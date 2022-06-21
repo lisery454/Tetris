@@ -7,9 +7,9 @@ namespace Tetris {
         [SerializeField] private Button exitBtn;
 
         private void Start() {
-            startBtn.onClick.AddListener(() => { TetrisGame.Instance.GotoScene("MainPlay"); });
+            startBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.GotoScene("MainPlay"); });
 
-            exitBtn.onClick.AddListener(() => { TetrisGame.Instance.ExitGame(); });
+            exitBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.ExitGame(); });
         }
     }
 }

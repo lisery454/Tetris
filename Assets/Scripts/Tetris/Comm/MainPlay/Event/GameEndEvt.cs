@@ -1,5 +1,5 @@
 ﻿using FrameWork;
 
 namespace Tetris {
-    public class GameEndEvt : AbstractEvent { }
+    public class GameEndEvt : Event { }
 }

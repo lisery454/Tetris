@@ -1,7 +1,7 @@
 ﻿using FrameWork;
 
 namespace Tetris {
-    public class ScoreModel : AbstractModel {
+    public class ScoreModel : Model {
         public override void Init() {
             Score = 0;
         }

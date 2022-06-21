@@ -3,26 +3,31 @@
 namespace FrameWork {
     public interface IExhibitor : IBelongedLeader, ICanSendCommand, ICanAddEventListener, ICanGetModel { }
 
-    public abstract class AbstractExhibitor : MonoBehaviour, IExhibitor {
+    public abstract class Exhibitor : MonoBehaviour, IExhibitor {
         public void SendCommand<T>() where T : ICommand, new() {
-            belongedLeader.SendCommand<T>();
+            BelongedLeader.SendCommand<T>();
         }
 
         public void SendCommand<T>(T command) where T : ICommand {
-            belongedLeader.SendCommand(command);
+            BelongedLeader.SendCommand(command);
         }
 
         public IEventRemover AddEventListener<T>(OnEvent<T> onEvent) where T : IEvent {
-            return belongedLeader.AddEventListener(onEvent);
+            return BelongedLeader.AddEventListener(onEvent);
         }
 
         public void RemoveEventListener<T>(OnEvent<T> onEvent) where T : IEvent {
-            belongedLeader.RemoveEventListener(onEvent);
+            BelongedLeader.RemoveEventListener(onEvent);
         }
 
-        public ILeader belongedLeader { get; set; }
+        public ILeader BelongedLeader { get; set; }
+
         public T GetModel<T>() where T : class, IModel {
-            return belongedLeader.GetModel<T>();
+            return BelongedLeader.GetModel<T>();
+        }
+
+        public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
+            return BelongedLeader.GetConfig<TConfig>();
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Tetris {
     }
 
 
-    public class MoveBoxCmd : AbstractCommand {
+    public class MoveBoxCmd : Command {
         private MoveDir moveDir { get; set; }
 
         public MoveBoxCmd(MoveDir moveDir) {

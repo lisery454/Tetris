@@ -2,7 +2,7 @@
 using FrameWork;
 
 namespace Tetris {
-    public class UpdateBoxViewEvt : AbstractEvent {
+    public class UpdateBoxViewEvt : Event {
         public StaticBoxInfo[,] StaticBoxInfo { get; }
         public List<DynamicBoxInfo> DynamicBoxInfo { get; }
 

@@ -1,7 +1,7 @@
 ﻿namespace FrameWork {
     public interface IEvent { }
 
-    public abstract class AbstractEvent : IEvent { }
+    public abstract class Event : IEvent { }
 
     public interface ICanAddEventListener {
         IEventRemover AddEventListener<T>(OnEvent<T> onEvent) where T : IEvent;

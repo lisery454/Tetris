@@ -11,17 +11,17 @@ namespace FrameWork {
         private Dictionary<Type, List<object>> EventListeners { get; set; } = new Dictionary<Type, List<object>>();
 
         public void TriggerEvent<T>() where T : IEvent, new() {
-            if (EventListeners.TryGetValue(typeof(T), out var onHormones)) {
-                foreach (OnEvent<T> onHormone in onHormones) {
-                    onHormone.Invoke(new T());
+            if (EventListeners.TryGetValue(typeof(T), out var onEvents)) {
+                foreach (OnEvent<T> onEvent in onEvents) {
+                    onEvent.Invoke(new T());
                 }
             }
         }
 
         public void TriggerEvent<T>(T e) where T : IEvent {
-            if (EventListeners.TryGetValue(typeof(T), out var onHormones)) {
-                foreach (OnEvent<T> onHormone in onHormones) {
-                    onHormone.Invoke(e);
+            if (EventListeners.TryGetValue(typeof(T), out var onEvents)) {
+                foreach (OnEvent<T> onEvent in onEvents) {
+                    onEvent.Invoke(e);
                 }
             }
         }

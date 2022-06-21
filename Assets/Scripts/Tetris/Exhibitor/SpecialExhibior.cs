@@ -1,23 +1,24 @@
 ﻿using FrameWork;
+using UnityEngine;
 
 namespace Tetris {
     //预先定义了每个场景中使用的exhibitor
-    
-    public abstract class StartUISceneExhibitor : AbstractExhibitor{
+
+    public abstract class StartUISceneExhibitor : Exhibitor {
         protected virtual void Awake() {
-            belongedLeader = TetrisGame.Instance.startUILeader;
+            BelongedLeader = FindObjectOfType<TetrisGame>().startUILeader;
         }
     }
-    
-    public abstract class MainPlaySceneExhibitor : AbstractExhibitor{
+
+    public abstract class MainPlaySceneExhibitor : Exhibitor {
         protected virtual void Awake() {
-            belongedLeader = TetrisGame.Instance.tetrisGameLeader;
+            BelongedLeader = FindObjectOfType<TetrisGame>().tetrisGameLeader;
         }
     }
-    
-    public abstract class EndUISceneExhibitor : AbstractExhibitor{
+
+    public abstract class EndUISceneExhibitor : Exhibitor {
         protected virtual void Awake() {
-            belongedLeader = TetrisGame.Instance.endUILeader;
+            BelongedLeader = FindObjectOfType<TetrisGame>().endUILeader;
         }
     }
 }

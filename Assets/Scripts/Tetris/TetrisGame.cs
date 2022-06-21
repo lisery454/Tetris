@@ -6,10 +6,10 @@ using UnityEngine.UI;
 
 
 namespace Tetris {
-    public class TetrisGame : Game<TetrisGame> {
-        public Leader startUILeader { get; private set; }
-        public Leader tetrisGameLeader { get; private set; }
-        public Leader endUILeader { get; private set; }
+    public class TetrisGame : Game {
+        public Leader startUILeader { get; set; }
+        public Leader tetrisGameLeader { get; set; }
+        public Leader endUILeader { get; set; }
 
         [SerializeField] private RectTransform sceneLoadPicTransform;
         [SerializeField] private GameObject sceneLoadSquarePrefab;
@@ -34,22 +34,20 @@ namespace Tetris {
             OnLeaveSceneAfterOtherSceneLoaded.Add("EndUI", () => { endUILeader = null; });
 
             //在开始加载场景时
-            OnStartLoadScene.Add("StartUI", () => { startUILeader = new Leader(); });
+            OnStartLoadScene.Add("StartUI", () => { startUILeader = LeaderFactory.CreateLeader(); });
+
             OnStartLoadScene.Add("MainPlay", () => {
-                tetrisGameLeader = new Leader();
+                tetrisGameLeader = LeaderFactory.CreateLeader();
                 tetrisGameLeader.Register(new TetrisGameModel());
                 tetrisGameLeader.Register(new ScoreModel());
                 tetrisGameLeader.Register(new TetrisLogicOperation());
             });
 
             OnStartLoadScene.Add("EndUI", () => {
-                endUILeader = new Leader();
+                endUILeader = LeaderFactory.CreateLeader();
                 endUILeader.RegisterWithoutInit(tetrisGameLeader.GetModel<ScoreModel>());
             });
-
-
-            //加载场景结束时
-            OnEndLoadScene.Add("MainPlay", () => { tetrisGameLeader.SendCommand<StartGameCmd>(); });
+            
 
             //初始化场景变换的动画
             InitLoadScenePic();

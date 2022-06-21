@@ -6,9 +6,9 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Tetris {
-    public class TetrisLogicOperation : AbstractOperation {
+    public class TetrisLogicOperation : Operation {
         private TetrisGameModel model;
-        private GameConfig _gameConfig;
+        private GameConfig gameConfig;
 
         private float time;
         private Queue<Action> OperationQueue;
@@ -16,20 +16,14 @@ namespace Tetris {
 
         public override void Init() {
             model = GetModel<TetrisGameModel>();
-            _gameConfig = TetrisGame.Instance.GetConfig<GameConfig>();
+            gameConfig = GetConfig<GameConfig>();
             OperationQueue = new Queue<Action>();
-
-            var r = Random.Range(0, model.BoxGroupPrefabs.Count);
-            model.NextDynamicBoxInfos = model.BoxGroupPrefabs[r].Clone();
-            model.NextDynamicBoxGroupRotCenter = (FloatTuple) model.BoxGroupRotCenter[r].Clone();
-            var rColor = Random.ColorHSV(0f, 1f, 0.4f, 0.5f, 0.8f, 0.9f);
-            model.NextDynamicBoxInfos.ForEach(info => { info.Color = rColor; });
         }
 
         protected override void OnUpdate() {
             time += Time.deltaTime;
-            if (time > _gameConfig.FallInterval) {
-                time -= _gameConfig.FallInterval;
+            if (time > gameConfig.FallInterval) {
+                time -= gameConfig.FallInterval;
 
                 OperationQueue.Enqueue(MoveDownOneGrid);
             }
@@ -40,10 +34,13 @@ namespace Tetris {
         }
 
         public void StartGame() {
+            CreateNextDynamicBoxGroup();
+
             NextBoxGroup();
+
             TriggerEvent(new UpdateBoxViewEvt(model.StaticBoxInfos, model.DynamicBoxInfos));
 
-            TetrisGame.Instance.OnUpdate += OnUpdate;
+            Update += OnUpdate;
         }
 
         /// <summary>
@@ -74,7 +71,7 @@ namespace Tetris {
             //判断是不是到边了或者碰到方块了
             if (model.DynamicBoxInfos.Any(
                 dynamicBoxInfo =>
-                    dynamicBoxInfo.X + 1 >= _gameConfig.Width ||
+                    dynamicBoxInfo.X + 1 >= gameConfig.Width ||
                     model.StaticBoxInfos[dynamicBoxInfo.X + 1, dynamicBoxInfo.Y].IsBox)) {
                 return;
             }
@@ -161,9 +158,9 @@ namespace Tetris {
         /// </summary>
         /// <returns></returns>
         private bool IsOnBorderOrBox(IntTuple boxLoc) {
-            if (boxLoc.X < 0 || boxLoc.X >= _gameConfig.Width)
+            if (boxLoc.X < 0 || boxLoc.X >= gameConfig.Width)
                 return true;
-            if (boxLoc.Y < 0 || boxLoc.Y >= _gameConfig.Height)
+            if (boxLoc.Y < 0 || boxLoc.Y >= gameConfig.Height)
                 return true;
             if (model.StaticBoxInfos[boxLoc.X, boxLoc.Y].IsBox)
                 return true;
@@ -190,33 +187,33 @@ namespace Tetris {
         /// 判断是否要消除
         /// </summary>
         private void CheckEliminate() {
-            for (var h = 0; h < _gameConfig.Height;) {
+            for (var h = 0; h < gameConfig.Height;) {
                 var isAllLineBox = true;
                 var isAllLineNotBox = true;
                 //判断一行是不是全是方块
-                for (var w = 0; w < _gameConfig.Width; w++) {
+                for (var w = 0; w < gameConfig.Width; w++) {
                     if (model.StaticBoxInfos[w, h].IsBox) continue;
                     isAllLineBox = false;
                     break;
                 }
 
                 //判断一行是不是全不是方块
-                for (var w = 0; w < _gameConfig.Width; w++) {
+                for (var w = 0; w < gameConfig.Width; w++) {
                     if (!model.StaticBoxInfos[w, h].IsBox) continue;
                     isAllLineNotBox = false;
                     break;
                 }
 
                 if (isAllLineBox) {
-                    for (var nh = h; nh < _gameConfig.Height - 1; nh++) {
-                        for (var nw = 0; nw < _gameConfig.Width; nw++) {
+                    for (var nh = h; nh < gameConfig.Height - 1; nh++) {
+                        for (var nw = 0; nw < gameConfig.Width; nw++) {
                             model.StaticBoxInfos[nw, nh] = model.StaticBoxInfos[nw, nh + 1];
                         }
                     }
 
                     //最后一行
-                    for (var nw = 0; nw < _gameConfig.Width; nw++) {
-                        model.StaticBoxInfos[nw, _gameConfig.Height - 1] = new StaticBoxInfo();
+                    for (var nw = 0; nw < gameConfig.Width; nw++) {
+                        model.StaticBoxInfos[nw, gameConfig.Height - 1] = new StaticBoxInfo();
                     }
 
                     GetModel<ScoreModel>().Score += 10;
@@ -235,10 +232,10 @@ namespace Tetris {
         /// 检测是否失败
         /// </summary>
         private void CheckFail() {
-            for (var w = 0; w < _gameConfig.Width; w++) {
-                if (model.StaticBoxInfos[w, _gameConfig.LimitHeight].IsBox) {
+            for (var w = 0; w < gameConfig.Width; w++) {
+                if (model.StaticBoxInfos[w, gameConfig.LimitHeight].IsBox) {
                     //时间停止流动
-                    TetrisGame.Instance.OnUpdate -= OnUpdate;
+                    Update -= OnUpdate;
                     //触发游戏失败事件
                     TriggerEvent<GameEndEvt>();
 
@@ -254,13 +251,19 @@ namespace Tetris {
             model.DynamicBoxInfos = model.NextDynamicBoxInfos;
             model.DynamicBoxGroupRotCenter = model.NextDynamicBoxGroupRotCenter;
 
-            var r = Random.Range(0, model.BoxGroupPrefabs.Count);
-            model.NextDynamicBoxInfos = model.BoxGroupPrefabs[r].Clone();
-            model.NextDynamicBoxGroupRotCenter = (FloatTuple) model.BoxGroupRotCenter[r].Clone();
-            var rColor = Random.ColorHSV(0f, 1f, 0.4f, 0.5f, 0.8f, 0.9f);
-            model.NextDynamicBoxInfos.ForEach(info => { info.Color = rColor; });
+            CreateNextDynamicBoxGroup();
 
             TriggerEvent(new NextBoxGroupEvt(model.NextDynamicBoxInfos));
+        }
+
+
+        private void CreateNextDynamicBoxGroup() {
+            var rCount = Random.Range(0, model.BoxGroupPrefabs.Count);
+            model.NextDynamicBoxInfos = model.BoxGroupPrefabs[rCount].Clone();
+            model.NextDynamicBoxGroupRotCenter = (FloatTuple) model.BoxGroupRotCenter[rCount].Clone();
+            var rHue = 1f / 10 * Random.Range(1, 10);
+            var rColor = Random.ColorHSV(rHue, rHue, 0.4f, 0.4f, 0.9f, 0.9f);
+            model.NextDynamicBoxInfos.ForEach(info => { info.Color = rColor; });
         }
 
         /// <summary>
@@ -279,7 +282,7 @@ namespace Tetris {
             var afterRotLoc = new IntTuple[beforeRotLoc.Count];
             for (var i = 0; i < beforeRotLoc.Count; i++) {
                 beforeRotLoc[i] -= model.DynamicBoxGroupRotCenter;
-                beforeRotLoc[i] = _gameConfig.RotMatrix.Multiply(beforeRotLoc[i]);
+                beforeRotLoc[i] = gameConfig.RotMatrix.Multiply(beforeRotLoc[i]);
                 beforeRotLoc[i] += model.DynamicBoxGroupRotCenter;
                 afterRotLoc[i] = (IntTuple) beforeRotLoc[i];
             }

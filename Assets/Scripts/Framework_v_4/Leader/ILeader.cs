@@ -1,23 +1,48 @@
 ﻿namespace FrameWork {
-    public interface ILeader : ICanGetModel, ICanGetOperator, ICanSendCommand, ICanAddEventListener,
-        ICanTriggerEvent { }
+    public interface ILeader : ICanGetModel, ICanGetOperator, ICanSendCommand, ICanAddEventListener, ICanGetConfig,
+        ICanTriggerEvent {
+        IGame BelongedGame { get; }
+    }
 
-    public abstract class AbstractLeader : ILeader {
-        protected AbstractLeader() {
-            IocContainer = new IOCContainer<INode>();
+    public class Leader : ILeader {
+        public Leader(IGame belongedGame) {
+            NodeController = new NodeController(this);
             eventDispatcher = new EventDispatcher();
+            BelongedGame = belongedGame;
         }
 
-        #region IOC 注册和获取后台组件
+        #region Config
 
-        public readonly IOCContainer<INode> IocContainer;
+        public IGame BelongedGame { get; }
+
+        public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
+            return BelongedGame.GetConfig<TConfig>();
+        }
+
+        #endregion
+
+        #region 注册Node
+
+        private readonly NodeController NodeController;
 
         public T GetOperation<T>() where T : class, IOperation {
-            return IocContainer.Get<T>();
+            return NodeController.GetOperation<T>();
         }
 
         public T GetModel<T>() where T : class, IModel {
-            return IocContainer.Get<T>();
+            return NodeController.GetModel<T>();
+        }
+
+        public void Register<T>(T node) where T : class, INode {
+            NodeController.Register<T>(node);
+        }
+
+        public void RegisterWithoutInit<T>(T node) where T : class, INode {
+            NodeController.RegisterWithoutInit(node);
+        }
+
+        public void UnRegister<T>(T node) where T : class, INode {
+            NodeController.UnRegister(node);
         }
 
         #endregion
@@ -25,12 +50,12 @@
         #region Command
 
         public void SendCommand<T>() where T : ICommand, new() {
-            var command = new T {belongedLeader = this};
+            var command = new T {BelongedLeader = this};
             command.Execute();
         }
 
         public void SendCommand<T>(T command) where T : ICommand {
-            command.belongedLeader = this;
+            command.BelongedLeader = this;
             command.Execute();
         }
 
@@ -57,23 +82,5 @@
         }
 
         #endregion
-    }
-
-    public class Leader : AbstractLeader {
-        public void Register<T>(T node) where T : class, INode {
-            IocContainer.Add(node);
-            node.belongedLeader = this;
-            node.Init();
-        }
-
-        public void RegisterWithoutInit<T>(T node) where T : class, INode {
-            IocContainer.Add(node);
-            node.belongedLeader = this;
-        }
-
-        public void UnRegister<T>(T node) where T : class, INode {
-            IocContainer.Remove<T>();
-            node.belongedLeader = null;
-        }
     }
 }
