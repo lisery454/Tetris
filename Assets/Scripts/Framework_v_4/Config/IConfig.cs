@@ -31,9 +31,10 @@ namespace FrameWork {
             if (!Directory.Exists(directoryPath)) {
                 Directory.CreateDirectory(directoryPath);
             }
-
+            
             if (!File.Exists(path)) {
-                File.Create(path);
+                var fileStream = File.Create(path);
+                fileStream.Close();
                 var originYaml = Resources.Load<TextAsset>(yamlPath.Substring(0, yamlPath.LastIndexOf('.'))).text;
                 File.WriteAllText(path, originYaml);
             }
