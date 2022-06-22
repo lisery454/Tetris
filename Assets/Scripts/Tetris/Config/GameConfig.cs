@@ -3,13 +3,15 @@ using FrameWork;
 
 namespace Tetris {
     public class GameConfig : YamlConfig {
-        public float FallInterval { get; private set; } = 0.5f;
-        public int Width { get; private set; } = 10;
-        public int Height { get; private set; } = 20;
-        public IntTuple NewBoxLoc { get; private set; } = new IntTuple(5, 18);
-        public int LimitHeight { get; private set; } = 12;
+        public float FallInterval { get; set; } = 0.5f;
+        public int Width { get; set; } = 10;
+        public int Height { get; set; } = 20;
+        public IntTuple NewBoxLoc { get; set; } = new IntTuple(5, 18);
+        public int LimitHeight { get; set; } = 12;
+        public int LimitHeightMin { get; set; } = 3;
+        public int LimitHeightMax { get; set; } = 16;
 
-        public List<List<IntTuple>> BoxGroupPrefabs { get; private set; } = new List<List<IntTuple>> {
+        public List<List<IntTuple>> BoxGroupPrefabs { get; set; } = new List<List<IntTuple>> {
             new List<IntTuple> {
                 new IntTuple(-1, 0), new IntTuple(0, 0), new IntTuple(1, 0), new IntTuple(2, 0)
             },

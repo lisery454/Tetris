@@ -1132,6 +1132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scoreText: {fileID: 144785872}
+  backBtn: {fileID: 731456090}
   exitBtn: {fileID: 1176080956}
   againBtn: {fileID: 1227706509}
 --- !u!114 &1956604767

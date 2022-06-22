@@ -10,6 +10,8 @@ namespace FrameWork {
 
         public void GotoScene(string sceneName);
         public void ExitGame();
+
+        void SaveConfig<TConfig>() where TConfig : class, IConfig;
     }
 
     public abstract class Game : MonoBehaviour, IGame {
@@ -29,7 +31,6 @@ namespace FrameWork {
 
         private readonly ConfigController ConfigController = new ConfigController();
 
-
         protected void AddConfig<TConfig>(TConfig config) where TConfig : class, IConfig {
             ConfigController.AddConfig(config);
         }
@@ -40,6 +41,10 @@ namespace FrameWork {
 
         public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
             return ConfigController.GetConfig<TConfig>();
+        }
+
+        public virtual void SaveConfig<TConfig>() where TConfig : class, IConfig {
+            //var config = GetConfig<TConfig>();
         }
 
         #endregion

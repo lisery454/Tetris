@@ -38,7 +38,7 @@ namespace Tetris {
                 var leader = LeaderFactory.CreateLeader("EndUI");
                 leader.RegisterWithoutInit(LeaderFactory.GetLeader("MainPlay").GetModel<ScoreModel>());
             });
-            
+
             OnStartLoadScene.Add("Setting", () => { LeaderFactory.CreateLeader("Setting"); });
 
 
@@ -104,6 +104,11 @@ namespace Tetris {
 
             yield return new WaitForSeconds(0.2f);
             Barrier.SetActive(false);
+        }
+
+        public override void SaveConfig<TConfig>() {
+            var config = GetConfig<TConfig>() as GameConfig;
+            YamlConfigRWer.WriteConfig(config, "Config/GameConfig.yaml");
         }
     }
 }

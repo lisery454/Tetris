@@ -961,6 +961,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startBtn: {fileID: 176515070}
+  settingBtn: {fileID: 1091230379}
   exitBtn: {fileID: 1161282800}
 --- !u!1 &1338159418
 GameObject:
