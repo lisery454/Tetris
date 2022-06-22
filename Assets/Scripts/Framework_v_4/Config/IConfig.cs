@@ -7,7 +7,7 @@ namespace FrameWork {
 
     public class YamlConfig : IConfig { }
 
-    public static class ConfigRWer {
+    public static class YamlConfigRWer {
         private static readonly Deserializer deserializer = new Deserializer();
         private static readonly Serializer serializer = new Serializer();
 

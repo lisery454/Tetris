@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using FrameWork;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Tetris {
-    public class MainGameCanvas : MainPlaySceneExhibitor {
+    public class MainGameCanvas : Exhibitor {
         [SerializeField] private Button backBtn;
         [SerializeField] private Text scoreText;
 

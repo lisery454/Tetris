@@ -3,10 +3,12 @@ using FrameWork;
 
 namespace Tetris {
     public class NextBoxGroupEvt : Event {
-        public List<DynamicBoxInfo> NextBoxGroup { get; }
+        public List<DynamicBoxInfo> NextDynamicBoxInfos { get; }
+        public FloatTuple NextDynamicBoxGroupRotCenter { get; }
 
-        public NextBoxGroupEvt(List<DynamicBoxInfo> nextBoxGroup) {
-            NextBoxGroup = nextBoxGroup;
+        public NextBoxGroupEvt(List<DynamicBoxInfo> nextDynamicBoxInfos, FloatTuple nextDynamicBoxGroupRotCenter) {
+            NextDynamicBoxInfos = nextDynamicBoxInfos;
+            NextDynamicBoxGroupRotCenter = nextDynamicBoxGroupRotCenter;
         }
     }
 }

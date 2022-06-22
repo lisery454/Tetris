@@ -13,6 +13,7 @@
         }
 
         protected abstract void OnExecute();
+        
         public ILeader BelongedLeader { get; set; }
 
         public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {

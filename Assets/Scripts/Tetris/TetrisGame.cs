@@ -7,10 +7,6 @@ using UnityEngine.UI;
 
 namespace Tetris {
     public class TetrisGame : Game {
-        public Leader startUILeader { get; set; }
-        public Leader tetrisGameLeader { get; set; }
-        public Leader endUILeader { get; set; }
-
         [SerializeField] private RectTransform sceneLoadPicTransform;
         [SerializeField] private GameObject sceneLoadSquarePrefab;
         [SerializeField] private GameObject Barrier;
@@ -22,32 +18,29 @@ namespace Tetris {
         protected override void Awake() {
             base.Awake();
             //配置
-            AddConfig(ConfigRWer.ReadConfig<GameConfig>("Config/GameConfig.yaml"));
+            AddConfig(YamlConfigRWer.ReadConfig<GameConfig>("Config/GameConfig.yaml"));
 
             //默认加载动画
             DefaultBeforeLoadSceneAnim = DefaultBeforeSceneLoad;
             DefaultAfterLoadSceneAnim = DefaultAfterSceneLoad;
 
-            //离开场景时清除leader
-            OnLeaveSceneAfterOtherSceneLoaded.Add("StartUI", () => { startUILeader = null; });
-            OnLeaveSceneAfterOtherSceneLoaded.Add("MainPlay", () => { tetrisGameLeader = null; });
-            OnLeaveSceneAfterOtherSceneLoaded.Add("EndUI", () => { endUILeader = null; });
-
             //在开始加载场景时
-            OnStartLoadScene.Add("StartUI", () => { startUILeader = LeaderFactory.CreateLeader(); });
+            OnStartLoadScene.Add("StartUI", () => { LeaderFactory.CreateLeader("StartUI"); });
 
             OnStartLoadScene.Add("MainPlay", () => {
-                tetrisGameLeader = LeaderFactory.CreateLeader();
-                tetrisGameLeader.Register(new TetrisGameModel());
-                tetrisGameLeader.Register(new ScoreModel());
-                tetrisGameLeader.Register(new TetrisLogicOperation());
+                var leader = LeaderFactory.CreateLeader("MainPlay");
+                leader.Register(new TetrisGameModel());
+                leader.Register(new ScoreModel());
+                leader.Register(new TetrisLogicOperation());
             });
 
             OnStartLoadScene.Add("EndUI", () => {
-                endUILeader = LeaderFactory.CreateLeader();
-                endUILeader.RegisterWithoutInit(tetrisGameLeader.GetModel<ScoreModel>());
+                var leader = LeaderFactory.CreateLeader("EndUI");
+                leader.RegisterWithoutInit(LeaderFactory.GetLeader("MainPlay").GetModel<ScoreModel>());
             });
             
+            OnStartLoadScene.Add("Setting", () => { LeaderFactory.CreateLeader("Setting"); });
+
 
             //初始化场景变换的动画
             InitLoadScenePic();

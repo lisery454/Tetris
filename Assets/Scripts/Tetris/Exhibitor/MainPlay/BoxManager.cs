@@ -3,7 +3,7 @@ using FrameWork;
 using UnityEngine;
 
 namespace Tetris {
-    public class BoxManager : MainPlaySceneExhibitor {
+    public class BoxManager : Exhibitor {
         [SerializeField] private Box BoxPrefab;
         [SerializeField] private GameObject LimitLine;
         [SerializeField] private Transform ShowNextBoxTransform;
@@ -64,9 +64,10 @@ namespace Tetris {
 
             ShowNextBoxList.Clear();
 
-            foreach (var info in e.NextBoxGroup) {
+            foreach (var info in e.NextDynamicBoxInfos) {
                 var box = Instantiate(BoxPrefab, ShowNextBoxTransform, false);
-                box.transform.position += new Vector3(info.X - gameConfig.NewBoxLoc.X, info.Y - gameConfig.NewBoxLoc.Y);
+                var rotCenter = e.NextDynamicBoxGroupRotCenter;
+                box.transform.position += new Vector3(info.X - rotCenter.X, info.Y - rotCenter.Y);
                 box.SetBoxColorAndInfo(info.Color, true);
 
                 ShowNextBoxList.Add(box);

@@ -1,8 +1,9 @@
+using FrameWork;
 using Tetris;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EndCanvas : EndUISceneExhibitor {
+public class EndCanvas : Exhibitor {
     [SerializeField] private Text scoreText;
     [SerializeField] private Button exitBtn;
     [SerializeField] private Button againBtn;

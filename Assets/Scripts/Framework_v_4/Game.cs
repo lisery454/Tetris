@@ -15,14 +15,13 @@ namespace FrameWork {
     public abstract class Game : MonoBehaviour, IGame {
         protected virtual void Awake() {
             LeaderFactory = new LeaderFactory(this);
-
             DontDestroyOnLoad(this);
         }
 
 
         #region Leader
 
-        protected LeaderFactory LeaderFactory;
+        public LeaderFactory LeaderFactory;
 
         #endregion
 
@@ -39,7 +38,7 @@ namespace FrameWork {
             ConfigController.RemoveConfig<TConfig>();
         }
 
-        TConfig ICanGetConfig.GetConfig<TConfig>() {
+        public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
             return ConfigController.GetConfig<TConfig>();
         }
 
@@ -83,6 +82,8 @@ namespace FrameWork {
 
             //加载
             StartCoroutine(ChangeSceneCoroutine(sceneName));
+            
+            LeaderFactory.RemoveLeader("beforeSceneName");
 
             //离开之前场景时（已经加载完了）
             if (OnLeaveSceneAfterOtherSceneLoaded.ContainsKey(beforeSceneName))
@@ -104,17 +105,23 @@ namespace FrameWork {
         private IEnumerator ChangeSceneCoroutine(string sceneName) {
             if (BeforeLoadSceneAnim.ContainsKey(sceneName) && BeforeLoadSceneAnim[sceneName] != null)
                 yield return BeforeLoadSceneAnim[sceneName].Invoke();
-            else if (DefaultBeforeLoadSceneAnim != null)
-                yield return DefaultBeforeLoadSceneAnim;
+            else if (DefaultBeforeLoadSceneAnim != null) {
+                yield return DefaultBeforeLoadSceneAnim.Invoke();
+            }
 
             SceneManager.LoadScene(sceneName);
 
             if (AfterLoadSceneAnim.ContainsKey(sceneName) && AfterLoadSceneAnim[sceneName] != null)
                 yield return AfterLoadSceneAnim[sceneName].Invoke();
             else if (DefaultAfterLoadSceneAnim != null)
-                yield return DefaultAfterLoadSceneAnim;
+                yield return DefaultAfterLoadSceneAnim.Invoke();
         }
 
         #endregion
     }
+
+    public interface IBelongedToGame {
+        IGame BelongedGame { get; }
+    }
+    
 }

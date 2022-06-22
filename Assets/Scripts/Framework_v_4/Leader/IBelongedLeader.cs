@@ -1,5 +1,5 @@
 ﻿namespace FrameWork {
-    public interface IBelongedLeader : ICanGetConfig {
+    public interface IBelongedLeader {
         ILeader BelongedLeader { get; set; }
     }
 }

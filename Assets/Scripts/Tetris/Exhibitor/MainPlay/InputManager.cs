@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using FrameWork;
+using UnityEngine;
 
 namespace Tetris {
-    public class InputManager : MainPlaySceneExhibitor {
+    public class InputManager : Exhibitor {
         private bool IsAble = true;
 
         protected override void Awake() {

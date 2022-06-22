@@ -20,7 +20,7 @@ namespace Tetris {
             OperationQueue = new Queue<Action>();
         }
 
-        protected override void OnUpdate() {
+        private void OnUpdate() {
             time += Time.deltaTime;
             if (time > gameConfig.FallInterval) {
                 time -= gameConfig.FallInterval;
@@ -253,9 +253,8 @@ namespace Tetris {
 
             CreateNextDynamicBoxGroup();
 
-            TriggerEvent(new NextBoxGroupEvt(model.NextDynamicBoxInfos));
+            TriggerEvent(new NextBoxGroupEvt(model.NextDynamicBoxInfos, model.NextDynamicBoxGroupRotCenter));
         }
-
 
         private void CreateNextDynamicBoxGroup() {
             var rCount = Random.Range(0, model.BoxGroupPrefabs.Count);
