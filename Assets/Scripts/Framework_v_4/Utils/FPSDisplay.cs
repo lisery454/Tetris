@@ -1,16 +1,18 @@
 using UnityEngine;
 
-public class FPSDisplay : MonoBehaviour
-{
+public class FPSDisplay : MonoBehaviour {
     float deltaTime;
 
-    void Update()
-    {
+
+    private void Awake() {
+        DontDestroyOnLoad(this);
+    }
+
+    void Update() {
         deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
     }
 
-    void OnGUI()
-    {
+    void OnGUI() {
         int w = Screen.width, h = Screen.height;
 
         GUIStyle style = new GUIStyle();

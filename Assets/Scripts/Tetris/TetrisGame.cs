@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Tetris {
     public class TetrisGame : Game {
-        [SerializeField] private RectTransform sceneLoadPicTransform;
+        [SerializeField] private RectTransform sceneLoadPicMaskTransform;
         [SerializeField] private GameObject sceneLoadSquarePrefab;
         [SerializeField] private GameObject Barrier;
         private GameObject[,] sceneLoadSquareList;
@@ -18,7 +18,7 @@ namespace Tetris {
         protected override void Awake() {
             base.Awake();
             //配置
-            AddConfig(YamlConfigRWer.ReadConfig<GameConfig>("Config/GameConfig.yaml"));
+            AddConfig("Config/GameConfig.yaml", YamlConfig.ReadConfig<GameConfig>);
 
             //默认加载动画
             DefaultBeforeLoadSceneAnim = DefaultBeforeSceneLoad;
@@ -56,19 +56,22 @@ namespace Tetris {
             var width = sceneLoadSquarePrefab.GetComponent<RectTransform>().rect.width;
             for (var x = 0; x < Column; x++) {
                 for (var y = 0; y < Row; y++) {
-                    var o = Instantiate(sceneLoadSquarePrefab, sceneLoadPicTransform, true);
-                    o.transform.position += Vector3.right * x * width;
-                    o.transform.position += Vector3.up * y * width;
+                    var o = Instantiate(sceneLoadSquarePrefab, sceneLoadPicMaskTransform, false);
+                    o.GetComponent<RectTransform>().anchoredPosition +=
+                        Vector2.right * x * width + Vector2.up * y * width;
+
                     sceneLoadSquareList[x, y] = o;
                     o.transform.localScale = Vector3.zero;
                     o.SetActive(false);
-                    o.GetComponent<Image>().color = Color.HSVToRGB(x * y * 1f / Column / Row, 0.5f, 0.9f);
+                    o.GetComponent<Image>().color =
+                        Color.HSVToRGB((x + 1) * (y + 1) * 1f / (Column + 1) / (Row + 1), 0.5f, 0.9f);
                 }
             }
         }
 
         private IEnumerator DefaultBeforeSceneLoad() {
             Barrier.SetActive(true);
+
             var waitForSeconds = new WaitForSeconds(0.3f / Column / Row);
             for (var x = 0; x < Column; x++) {
                 for (var y = 0; y < Row; y++) {
@@ -106,9 +109,20 @@ namespace Tetris {
             Barrier.SetActive(false);
         }
 
-        public override void SaveConfig<TConfig>() {
-            var config = GetConfig<TConfig>() as GameConfig;
-            YamlConfigRWer.WriteConfig(config, "Config/GameConfig.yaml");
+
+        public override void OnViewUpdate(int width, int height) {
+            var main = Camera.main;
+
+            if (main != null) {
+                if (height * 1f / width > 9f / 16f) {
+                    Debug.Log($"{height},  {width}");
+                    Debug.Log(main.orthographicSize);
+                    main.orthographicSize = 11f * (height * 16f) / (width * 9f);
+                    Debug.Log(main.orthographicSize);
+                }
+                else
+                    main.orthographicSize = 11f;
+            }
         }
     }
 }

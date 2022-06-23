@@ -9,11 +9,11 @@ namespace Tetris {
         [SerializeField] private Button exitBtn;
 
         private void Start() {
-            startBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.GotoScene("MainPlay"); });
-            
-            settingBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.GotoScene("Setting"); });
-            
-            exitBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.ExitGame(); });
+            startBtn.onClick.AddListener(() => { GotoScene("MainPlay"); });
+
+            settingBtn.onClick.AddListener(() => { GotoScene("Setting"); });
+
+            exitBtn.onClick.AddListener(() => { GotoScene("Exit"); });
         }
     }
 }

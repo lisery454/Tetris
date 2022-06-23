@@ -8,9 +8,9 @@ namespace Tetris {
         [SerializeField] private Text scoreText;
 
         private void Start() {
-            backBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.GotoScene("StartUI"); });
+            backBtn.onClick.AddListener(() => { GotoScene("StartUI"); });
 
-            AddEventListener<GameEndEvt>(evt => { BelongedLeader.BelongedGame.GotoScene("EndUI"); });
+            AddEventListener<GameEndEvt>(evt => { GotoScene("EndUI"); });
 
             AddEventListener<ScoreUpdateEvt>(evt => { scoreText.text = evt.Score.ToString(); });
         }

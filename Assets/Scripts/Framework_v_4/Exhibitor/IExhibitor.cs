@@ -1,10 +1,19 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace FrameWork {
     public interface IExhibitor : IBelongedLeader, ICanSendCommand, ICanAddEventListener, ICanGetModel,
-        ICanGetConfig { }
-
+        ICanGetConfig, ICanChangeScene, ICanSaveConfig { }
+    
+    
+    
+    /// <summary>
+    /// 展示者，用来呈现
+    /// 一般来说展示者自己可以解决的简单逻辑自己解决
+    /// 如果说要修改后台数据或者是和其他展示者要沟通数据, 或者是有什么复杂操作，就要使用command
+    /// 可以读model，但是不要改
+    /// </summary>
     public abstract class Exhibitor : MonoBehaviour, IExhibitor {
         public ILeader BelongedLeader { get; set; }
 
@@ -48,6 +57,22 @@ namespace FrameWork {
 
         public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
             return BelongedLeader.GetConfig<TConfig>();
+        }
+
+        #endregion
+
+        #region ICanChangeScene
+
+        public void GotoScene(string sceneName) {
+            BelongedLeader.BelongedGame.GotoScene(sceneName);
+        }
+
+        #endregion
+
+        #region ICanSaveConfig
+
+        public void SaveConfig<TConfig>(string path, Action<string, TConfig> Writer) where TConfig : class, IConfig {
+            BelongedLeader.BelongedGame.SaveConfig(path, Writer);
         }
 
         #endregion

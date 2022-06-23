@@ -5,13 +5,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace FrameWork {
-    public interface IGame : ICanGetConfig {
+    public interface IGame : ICanGetConfig, ICanChangeScene, ICanSaveConfig, ICanAddConfig {
         Action OnUpdate { get; set; } //给Node调用的时间接口
-
-        public void GotoScene(string sceneName);
-        public void ExitGame();
-
-        void SaveConfig<TConfig>() where TConfig : class, IConfig;
     }
 
     public abstract class Game : MonoBehaviour, IGame {
@@ -19,7 +14,6 @@ namespace FrameWork {
             LeaderFactory = new LeaderFactory(this);
             DontDestroyOnLoad(this);
         }
-
 
         #region Leader
 
@@ -31,11 +25,13 @@ namespace FrameWork {
 
         private readonly ConfigController ConfigController = new ConfigController();
 
-        protected void AddConfig<TConfig>(TConfig config) where TConfig : class, IConfig {
+        public void AddConfig<TConfig>(string path, Func<string, TConfig> Reader)
+            where TConfig : class, IConfig {
+            var config = Reader.Invoke(path);
             ConfigController.AddConfig(config);
         }
 
-        protected void RemoveConfig<TConfig>() where TConfig : class, IConfig {
+        public void RemoveConfig<TConfig>() where TConfig : class, IConfig {
             ConfigController.RemoveConfig<TConfig>();
         }
 
@@ -43,8 +39,9 @@ namespace FrameWork {
             return ConfigController.GetConfig<TConfig>();
         }
 
-        public virtual void SaveConfig<TConfig>() where TConfig : class, IConfig {
-            //var config = GetConfig<TConfig>();
+        public virtual void SaveConfig<TConfig>(string path, Action<string, TConfig> Writer)
+            where TConfig : class, IConfig {
+            Writer.Invoke(path, GetConfig<TConfig>());
         }
 
         #endregion
@@ -55,7 +52,27 @@ namespace FrameWork {
 
         private void Update() {
             OnUpdate?.Invoke();
+            ViewListenerUpdate();
         }
+
+        #endregion
+
+        #region GameViewListener
+
+        private int lastWidth { get; set; }
+        private int lastHeight { get; set; }
+
+        private void ViewListenerUpdate() {
+            if (lastWidth != Screen.width ||
+                lastHeight != Screen.height) {
+                lastWidth = Screen.width;
+                lastHeight = Screen.height;
+
+                OnViewUpdate(lastWidth, lastHeight);
+            }
+        }
+
+        public virtual void OnViewUpdate(int width, int height) { }
 
         #endregion
 
@@ -77,6 +94,24 @@ namespace FrameWork {
 
 
         public void GotoScene(string sceneName) {
+            if (sceneName == "Exit") {
+                ExitGame();
+                return;
+            }
+
+            //加载
+            StartCoroutine(ChangeSceneCoroutine(sceneName));
+        }
+
+        private void ExitGame() {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+
+        private IEnumerator ChangeSceneCoroutine(string sceneName) {
             OnUpdate = null;
 
             var beforeSceneName = SceneManager.GetActiveScene().name;
@@ -85,9 +120,25 @@ namespace FrameWork {
             if (OnStartLoadScene.ContainsKey(sceneName))
                 OnStartLoadScene[sceneName]?.Invoke();
 
+
+            //加载场景动画开始
+            if (BeforeLoadSceneAnim.ContainsKey(sceneName) && BeforeLoadSceneAnim[sceneName] != null)
+                yield return BeforeLoadSceneAnim[sceneName].Invoke();
+            else if (DefaultBeforeLoadSceneAnim != null) {
+                yield return DefaultBeforeLoadSceneAnim.Invoke();
+            }
+
             //加载
-            StartCoroutine(ChangeSceneCoroutine(sceneName));
-            
+            var op = SceneManager.LoadSceneAsync(sceneName);
+            op.allowSceneActivation = false;
+            while (op.progress < 0.9f) {
+                yield return new WaitForEndOfFrame();
+            }
+
+            yield return new WaitForEndOfFrame();
+            op.allowSceneActivation = true;
+
+            //移除leader
             LeaderFactory.RemoveLeader("beforeSceneName");
 
             //离开之前场景时（已经加载完了）
@@ -97,25 +148,14 @@ namespace FrameWork {
             //结束加载时
             if (OnEndLoadScene.ContainsKey(sceneName))
                 OnEndLoadScene[sceneName]?.Invoke();
-        }
 
-        public void ExitGame() {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
-        }
+            yield return null;
+            //yield return null;
 
-        private IEnumerator ChangeSceneCoroutine(string sceneName) {
-            if (BeforeLoadSceneAnim.ContainsKey(sceneName) && BeforeLoadSceneAnim[sceneName] != null)
-                yield return BeforeLoadSceneAnim[sceneName].Invoke();
-            else if (DefaultBeforeLoadSceneAnim != null) {
-                yield return DefaultBeforeLoadSceneAnim.Invoke();
-            }
-
-            SceneManager.LoadScene(sceneName);
-
+            //场景中适配分辨率
+            OnViewUpdate(lastWidth, lastHeight);
+            
+            //加载场景动画结束
             if (AfterLoadSceneAnim.ContainsKey(sceneName) && AfterLoadSceneAnim[sceneName] != null)
                 yield return AfterLoadSceneAnim[sceneName].Invoke();
             else if (DefaultAfterLoadSceneAnim != null)
@@ -128,5 +168,8 @@ namespace FrameWork {
     public interface IBelongedToGame {
         IGame BelongedGame { get; }
     }
-    
+
+    public interface ICanChangeScene {
+        void GotoScene(string sceneName);
+    }
 }

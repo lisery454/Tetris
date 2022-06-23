@@ -10,9 +10,9 @@ public class EndCanvas : Exhibitor {
     [SerializeField] private Button againBtn;
 
     private void Start() {
-        againBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.GotoScene("MainPlay"); });
-        backBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.GotoScene("StartUI"); });
-        exitBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.ExitGame(); });
+        againBtn.onClick.AddListener(() => { GotoScene("MainPlay"); });
+        backBtn.onClick.AddListener(() => { GotoScene("StartUI"); });
+        exitBtn.onClick.AddListener(() => { GotoScene("Exit"); });
         scoreText.text = GetModel<ScoreModel>().Score.ToString();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace FrameWork {
     public class LeaderFactory {
@@ -22,6 +23,11 @@ namespace FrameWork {
                 return Leaders[sceneName];
             }
             else return null;
+        }
+
+        public Leader GetCurrentLeader() {
+            var currentLeader = GetLeader(SceneManager.GetActiveScene().name);
+            return currentLeader ?? null;
         }
 
         public void RemoveLeader(string sceneName) {

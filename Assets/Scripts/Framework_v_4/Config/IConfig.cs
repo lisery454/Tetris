@@ -1,47 +1,19 @@
-﻿using System.IO;
-using UnityEngine;
-using YamlDotNet.Serialization;
+﻿using System;
 
 namespace FrameWork {
     public interface IConfig { }
 
-    public class YamlConfig : IConfig { }
-
-    public static class YamlConfigRWer {
-        private static readonly Deserializer deserializer = new Deserializer();
-        private static readonly Serializer serializer = new Serializer();
-
-        public static T ReadConfig<T>(string yamlPath) where T : class, IConfig {
-            CreateDefaultConfig(yamlPath);
-            var yaml = File.ReadAllText(Application.persistentDataPath + '/' + yamlPath);
-            var config = deserializer.Deserialize<T>(yaml);
-            return config;
-        }
-
-        public static void WriteConfig<T>(T config, string yamlPath) where T : class, IConfig {
-            CreateDefaultConfig(yamlPath);
-            var yaml = serializer.Serialize(config);
-            File.WriteAllText(Application.persistentDataPath + '/' + yamlPath, yaml);
-        }
-
-        private static void CreateDefaultConfig(string yamlPath) {
-            var path = Application.persistentDataPath + '/' + yamlPath;
-            var directoryPath = path.Substring(0, path.LastIndexOf('/'));
-
-            if (!Directory.Exists(directoryPath)) {
-                Directory.CreateDirectory(directoryPath);
-            }
-            
-            if (!File.Exists(path)) {
-                var fileStream = File.Create(path);
-                fileStream.Close();
-                var originYaml = Resources.Load<TextAsset>(yamlPath.Substring(0, yamlPath.LastIndexOf('.'))).text;
-                File.WriteAllText(path, originYaml);
-            }
-        }
-    }
-
     public interface ICanGetConfig {
         public TConfig GetConfig<TConfig>() where TConfig : class, IConfig;
+    }
+
+    public interface ICanAddConfig {
+        void AddConfig<TConfig>(string path, Func<string, TConfig> Reader) where TConfig : class, IConfig;
+        void RemoveConfig<TConfig>() where TConfig : class, IConfig;
+    }
+
+    public interface ICanSaveConfig {
+        void SaveConfig<TConfig>(string path, Action<string, TConfig> Writer)
+            where TConfig : class, IConfig;
     }
 }

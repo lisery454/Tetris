@@ -7,6 +7,7 @@ namespace Tetris {
         private GameConfig gameConfig;
 
         [SerializeField] private SliderText LimitHeightSlider;
+        [SerializeField] private SliderText FallSpeedSlider;
         [SerializeField] private Button saveBtn;
         [SerializeField] private Button backBtn;
 
@@ -19,12 +20,17 @@ namespace Tetris {
         private void Start() {
             LimitHeightSlider.SetMaxAndMin(gameConfig.LimitHeightMax, gameConfig.LimitHeightMin);
             LimitHeightSlider.SliderValue = gameConfig.LimitHeight;
+            FallSpeedSlider.SetMaxAndMin(gameConfig.FallSpeedMax, gameConfig.FallSpeedMin);
+            FallSpeedSlider.SliderValue = (int) Mathf.Round(1f / gameConfig.FallInterval);
 
 
-            backBtn.onClick.AddListener(() => { BelongedLeader.BelongedGame.GotoScene("StartUI"); });
+            backBtn.onClick.AddListener(() => { GotoScene("StartUI"); });
             saveBtn.onClick.AddListener(() => {
                 gameConfig.LimitHeight = (int) LimitHeightSlider.SliderValue;
-                BelongedLeader.BelongedGame.SaveConfig<GameConfig>();
+                gameConfig.FallInterval = 1f / FallSpeedSlider.SliderValue;
+
+                SaveConfig<GameConfig>("Config/GameConfig.yaml", YamlConfig.WriteConfig);
+                GotoScene("StartUI");
             });
         }
     }
