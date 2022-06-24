@@ -244,7 +244,7 @@ namespace Tetris {
                         staticBoxInfos[nw, height - 1] = new StaticBoxInfo();
                     }
 
-                    scoreModel.Score += 10;
+                    scoreModel.Score += 1;
                     TriggerEvent(new ScoreUpdateEvt(scoreModel.Score));
                 }
                 else if (isAllLineNotBox) {

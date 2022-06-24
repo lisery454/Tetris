@@ -68,11 +68,17 @@ namespace FrameWork {
                 lastWidth = Screen.width;
                 lastHeight = Screen.height;
 
-                OnViewUpdate(lastWidth, lastHeight);
+
+                var sceneName = SceneManager.GetActiveScene().name;
+                if (OnViewUpdate.ContainsKey(sceneName))
+                    OnViewUpdate[sceneName].Invoke(lastWidth, lastHeight);
             }
         }
 
-        public virtual void OnViewUpdate(int width, int height) { }
+        //当某个场景中，分辨率改变时时启用的操作
+        //先宽后高
+        protected readonly Dictionary<string, Action<int, int>> OnViewUpdate =
+            new Dictionary<string, Action<int, int>>();
 
         #endregion
 
@@ -111,7 +117,7 @@ namespace FrameWork {
 #endif
         }
 
-        private IEnumerator ChangeSceneCoroutine(string sceneName) {
+        protected virtual IEnumerator ChangeSceneCoroutine(string sceneName) {
             OnUpdate = null;
 
             var beforeSceneName = SceneManager.GetActiveScene().name;
@@ -124,9 +130,9 @@ namespace FrameWork {
             //加载场景动画开始
             if (BeforeLoadSceneAnim.ContainsKey(sceneName) && BeforeLoadSceneAnim[sceneName] != null)
                 yield return BeforeLoadSceneAnim[sceneName].Invoke();
-            else if (DefaultBeforeLoadSceneAnim != null) {
+            else if (DefaultBeforeLoadSceneAnim != null)
                 yield return DefaultBeforeLoadSceneAnim.Invoke();
-            }
+
 
             //加载
             var op = SceneManager.LoadSceneAsync(sceneName);
@@ -149,12 +155,14 @@ namespace FrameWork {
             if (OnEndLoadScene.ContainsKey(sceneName))
                 OnEndLoadScene[sceneName]?.Invoke();
 
+            //等待所有物体awake，但是还没有渲染
             yield return null;
             //yield return null;
 
-            //场景中适配分辨率
-            OnViewUpdate(lastWidth, lastHeight);
-            
+            //场景加载开始适配分辨率
+            if (OnViewUpdate.ContainsKey(sceneName))
+                OnViewUpdate[sceneName].Invoke(lastWidth, lastHeight);
+
             //加载场景动画结束
             if (AfterLoadSceneAnim.ContainsKey(sceneName) && AfterLoadSceneAnim[sceneName] != null)
                 yield return AfterLoadSceneAnim[sceneName].Invoke();

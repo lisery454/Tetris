@@ -19,6 +19,8 @@ namespace Tetris {
             base.Awake();
             //配置
             AddConfig("Config/GameConfig.yaml", YamlConfig.ReadConfig<GameConfig>);
+            AddConfig("Config/KeyConfig.yaml", YamlConfig.ReadConfig<KeyConfig>);
+
 
             //默认加载动画
             DefaultBeforeLoadSceneAnim = DefaultBeforeSceneLoad;
@@ -26,24 +28,37 @@ namespace Tetris {
 
             //在开始加载场景时
             OnStartLoadScene.Add("StartUI", () => { LeaderFactory.CreateLeader("StartUI"); });
-
             OnStartLoadScene.Add("MainPlay", () => {
                 var leader = LeaderFactory.CreateLeader("MainPlay");
                 leader.Register(new TetrisGameModel());
                 leader.Register(new ScoreModel());
                 leader.Register(new TetrisLogicOperation());
             });
-
             OnStartLoadScene.Add("EndUI", () => {
                 var leader = LeaderFactory.CreateLeader("EndUI");
                 leader.RegisterWithoutInit(LeaderFactory.GetLeader("MainPlay").GetModel<ScoreModel>());
             });
-
             OnStartLoadScene.Add("Setting", () => { LeaderFactory.CreateLeader("Setting"); });
 
 
             //初始化场景变换的动画
             InitLoadScenePic();
+
+            //当场景切换到MainPlay时， 根据分辨率修正场景中 摄像机范围大小
+            OnViewUpdate["MainPlay"] = (width, height) => {
+                var main = Camera.main;
+
+                if (main != null) {
+                    if (height * 1f / width > 9f / 16f) {
+                        Debug.Log($"{height},  {width}");
+                        Debug.Log(main.orthographicSize);
+                        main.orthographicSize = 11f * (height * 16f) / (width * 9f);
+                        Debug.Log(main.orthographicSize);
+                    }
+                    else
+                        main.orthographicSize = 11f;
+                }
+            };
 
             //转到开始场景
             GotoScene("StartUI");
@@ -107,22 +122,6 @@ namespace Tetris {
 
             yield return new WaitForSeconds(0.2f);
             Barrier.SetActive(false);
-        }
-
-
-        public override void OnViewUpdate(int width, int height) {
-            var main = Camera.main;
-
-            if (main != null) {
-                if (height * 1f / width > 9f / 16f) {
-                    Debug.Log($"{height},  {width}");
-                    Debug.Log(main.orthographicSize);
-                    main.orthographicSize = 11f * (height * 16f) / (width * 9f);
-                    Debug.Log(main.orthographicSize);
-                }
-                else
-                    main.orthographicSize = 11f;
-            }
         }
     }
 }
