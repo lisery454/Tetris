@@ -17,7 +17,11 @@ namespace Tetris {
 
         public List<FloatTuple> BoxGroupSRS { get; private set; }
 
-        public TupleMatrix RotMatrix;
+        public TupleMatrix RotMatrix { get; set; }
+
+        public float SpeedUpFactor { get; set; }
+        public float SpeedUpFactorMin { get; set; }
+        public float SpeedUpFactorMax { get; set; }
 
         public GameConfig() {
             FallInterval = 0.5f;
@@ -65,6 +69,10 @@ namespace Tetris {
             };
 
             RotMatrix = new TupleMatrix(0, -1, 1, 0);
+
+            SpeedUpFactor = 3f;
+            SpeedUpFactorMin = 2f;
+            SpeedUpFactorMax = 8f;
         }
     }
 }

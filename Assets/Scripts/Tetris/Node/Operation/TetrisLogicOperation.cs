@@ -28,7 +28,6 @@ namespace Tetris {
         private int rHueNum;
         private static int colorWheelNum = 12;
 
-
         public override void Init() {
             gameModel = GetModel<TetrisGameModel>();
             scoreModel = GetModel<ScoreModel>();
@@ -159,8 +158,8 @@ namespace Tetris {
 
         private void OnUpdate() {
             time += Time.deltaTime;
-            if (time > gameConfig.FallInterval) {
-                time -= gameConfig.FallInterval;
+            if (time > gameConfig.FallInterval / gameModel.SpeedFactor) {
+                time -= gameConfig.FallInterval / gameModel.SpeedFactor;
 
                 OperationQueue.Enqueue(MoveDownOneGrid);
             }
@@ -367,6 +366,10 @@ namespace Tetris {
             }
 
             return dynamicBoxShadowInfos;
+        }
+
+        public void SpeedChange(bool isSpeedUp) {
+            gameModel.SpeedFactor = isSpeedUp ? gameConfig.SpeedUpFactor : 1f;
         }
     }
 }

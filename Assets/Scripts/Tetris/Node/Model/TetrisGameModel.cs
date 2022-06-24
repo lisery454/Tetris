@@ -36,6 +36,8 @@ namespace Tetris {
                 tuple.X += gameConfig.NewBoxLoc.X;
                 tuple.Y += gameConfig.NewBoxLoc.Y;
             });
+
+            SpeedFactor = 1f;
         }
 
         public StaticBoxInfo[,] StaticBoxInfos; //静止方块的信息
@@ -47,6 +49,8 @@ namespace Tetris {
 
         public List<List<DynamicBoxInfo>> BoxGroupPrefabs; //所有可能出现的运动方块信息
         public List<FloatTuple> BoxGroupRotCenter; //所有可能出现的运动方块旋转中心
+
+        public float SpeedFactor; //下落速度的修正参数
     }
 
     public class StaticBoxInfo {
