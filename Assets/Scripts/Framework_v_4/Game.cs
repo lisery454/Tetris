@@ -98,6 +98,8 @@ namespace FrameWork {
         protected readonly Dictionary<string, Action> OnStartLoadScene = new Dictionary<string, Action>();
         protected readonly Dictionary<string, Action> OnEndLoadScene = new Dictionary<string, Action>();
 
+        protected Action OnExitGame = null;
+
 
         public void GotoScene(string sceneName) {
             if (sceneName == "Exit") {
@@ -110,6 +112,8 @@ namespace FrameWork {
         }
 
         private void ExitGame() {
+            OnExitGame?.Invoke();
+            
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else

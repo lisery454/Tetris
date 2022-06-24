@@ -20,6 +20,7 @@ namespace Tetris {
             //配置
             AddConfig("Config/GameConfig.yaml", YamlConfig.ReadConfig<GameConfig>);
             AddConfig("Config/KeyConfig.yaml", YamlConfig.ReadConfig<KeyConfig>);
+            AddConfig("Config/RecordConfig.yaml", YamlConfig.ReadConfig<RecordConfig>);
 
 
             //默认加载动画
@@ -59,6 +60,14 @@ namespace Tetris {
                         main.orthographicSize = 11f;
                 }
             };
+
+            //结束时保存Config
+            OnExitGame += () => {
+                SaveConfig<GameConfig>("Config/GameConfig.yaml", YamlConfig.WriteConfig);
+                SaveConfig<KeyConfig>("Config/KeyConfig.yaml", YamlConfig.WriteConfig);
+                SaveConfig<RecordConfig>("Config/RecordConfig.yaml", YamlConfig.WriteConfig);
+            };
+
 
             //转到开始场景
             GotoScene("StartUI");

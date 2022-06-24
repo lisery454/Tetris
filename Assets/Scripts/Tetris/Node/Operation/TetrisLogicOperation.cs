@@ -283,6 +283,10 @@ namespace Tetris {
                 if (gameModel.StaticBoxInfos[w, gameConfig.LimitHeight].IsBox) {
                     //时间停止流动
                     Update -= OnUpdate;
+                    //记录最高分
+                    if (GetConfig<RecordConfig>().MaxScore < scoreModel.Score)
+                        GetConfig<RecordConfig>().MaxScore = scoreModel.Score;
+                    
                     //触发游戏失败事件
                     TriggerEvent<GameEndEvt>();
 
