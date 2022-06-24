@@ -41,7 +41,8 @@ namespace Tetris {
 
             NextBoxGroup();
 
-            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos));
+            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos,
+                GetDynamicBoxShadowInfos()));
 
             Update += OnUpdate;
         }
@@ -91,7 +92,8 @@ namespace Tetris {
             gameModel.DynamicBoxGroupRotCenter.X++;
 
             //更新视图
-            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos));
+            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos,
+                GetDynamicBoxShadowInfos()));
         }
 
         /// <summary>
@@ -111,7 +113,8 @@ namespace Tetris {
             gameModel.DynamicBoxGroupRotCenter.X--;
 
             //更新视图
-            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos));
+            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos,
+                GetDynamicBoxShadowInfos()));
         }
 
         /// <summary>
@@ -129,7 +132,8 @@ namespace Tetris {
             NextBoxGroup();
 
             //更新视图
-            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos));
+            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos,
+                GetDynamicBoxShadowInfos()));
         }
 
         /// <summary>
@@ -149,7 +153,8 @@ namespace Tetris {
 
 
             //更新视图
-            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos));
+            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos,
+                GetDynamicBoxShadowInfos()));
         }
 
         private void OnUpdate() {
@@ -215,6 +220,8 @@ namespace Tetris {
             var staticBoxInfos = gameModel.StaticBoxInfos;
             bool isAllLineBox, isAllLineNotBox;
 
+            var eliminateCount = 0;
+
             for (var h = 0; h < height;) {
                 isAllLineBox = true;
                 isAllLineNotBox = true;
@@ -233,25 +240,38 @@ namespace Tetris {
                 }
 
                 if (isAllLineBox) {
-                    for (var nh = h; nh < height - 1; nh++) {
-                        for (var nw = 0; nw < width; nw++) {
-                            staticBoxInfos[nw, nh] = staticBoxInfos[nw, nh + 1];
+                    eliminateCount++;
+                    h++;
+                }
+                else {
+                    if (eliminateCount != 0) {
+                        //移动
+                        for (var nh = h; nh < height; nh++) {
+                            for (var nw = 0; nw < width; nw++) {
+                                staticBoxInfos[nw, nh - eliminateCount] = staticBoxInfos[nw, nh];
+                            }
+                        }
+
+                        //最后几行
+                        for (var nh = height - eliminateCount; nh < height; nh++) {
+                            for (var nw = 0; nw < width; nw++) {
+                                staticBoxInfos[nw, nh] = new StaticBoxInfo();
+                            }
                         }
                     }
 
-                    //最后一行
-                    for (var nw = 0; nw < width; nw++) {
-                        staticBoxInfos[nw, height - 1] = new StaticBoxInfo();
-                    }
 
-                    scoreModel.Score += 1;
+                    scoreModel.Score += eliminateCount * eliminateCount;
                     TriggerEvent(new ScoreUpdateEvt(scoreModel.Score));
-                }
-                else if (isAllLineNotBox) {
-                    break;
-                }
-                else {
-                    h++;
+
+
+                    if (isAllLineNotBox) {
+                        break;
+                    }
+                    else {
+                        h++;
+                        eliminateCount = 0;
+                    }
                 }
             }
         }
@@ -316,7 +336,37 @@ namespace Tetris {
             }
 
             //更新视图
-            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos));
+            TriggerEvent(new UpdateBoxViewEvt(gameModel.StaticBoxInfos, gameModel.DynamicBoxInfos,
+                GetDynamicBoxShadowInfos()));
+        }
+
+        private List<DynamicBoxInfo> GetDynamicBoxShadowInfos() {
+            var dynamicBoxShadowInfos = gameModel.DynamicBoxInfos.Clone();
+            var staticBoxInfos = gameModel.StaticBoxInfos;
+
+            foreach (var shadowInfo in dynamicBoxShadowInfos) {
+                shadowInfo.Color = Color.white;
+            }
+
+
+            var isTouched = false;
+
+
+            for (var i = 0; i < gameConfig.Height; i++) {
+                foreach (var shadowInfo in dynamicBoxShadowInfos) {
+                    if (shadowInfo.Y == 0 || staticBoxInfos[shadowInfo.X, shadowInfo.Y - 1].IsBox) {
+                        isTouched = true;
+                    }
+                }
+
+                if (isTouched) break;
+                else {
+                    foreach (var t in dynamicBoxShadowInfos)
+                        t.Y--;
+                }
+            }
+
+            return dynamicBoxShadowInfos;
         }
     }
 }

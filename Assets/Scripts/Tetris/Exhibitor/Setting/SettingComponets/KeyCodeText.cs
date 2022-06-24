@@ -47,8 +47,13 @@ public class KeyCodeText : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private void OnGUI() {
         if (isListenCode) {
             if (Input.anyKeyDown) {
+                var currentEvent = Event.current;
                 isListenCode = false;
-                KeyCode = Event.current.keyCode;
+
+                var currentEventKeyCode = currentEvent.keyCode;
+                if (currentEventKeyCode != KeyCode.None)
+                    KeyCode = currentEventKeyCode;
+
                 image.color = originalColor;
             }
         }

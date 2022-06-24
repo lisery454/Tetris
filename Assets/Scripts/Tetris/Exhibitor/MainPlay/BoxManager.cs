@@ -49,11 +49,16 @@ namespace Tetris {
                 for (var h = 0; h < gameConfig.Height; h++) {
                     var boxInfo = e.StaticBoxInfo[w, h];
                     boxMatrix[w, h].SetBoxColorAndInfo(boxInfo.Color, boxInfo.IsBox);
+                    boxMatrix[w, h].SetBoxState(BoxState.Normal);
                 }
             }
 
             foreach (var info in e.DynamicBoxInfo) {
                 boxMatrix[info.X, info.Y].SetBoxColorAndInfo(info.Color, true);
+            }
+
+            foreach (var info in e.DynamicBoxShadowInfos) {
+                boxMatrix[info.X, info.Y].SetBoxState(BoxState.Ghost);
             }
         }
 
@@ -69,6 +74,7 @@ namespace Tetris {
                 var rotCenter = e.NextDynamicBoxGroupRotCenter;
                 box.transform.position += new Vector3(info.X - rotCenter.X, info.Y - rotCenter.Y);
                 box.SetBoxColorAndInfo(info.Color, true);
+                //box.SetBoxSprite(BoxState.Normal);
 
                 ShowNextBoxList.Add(box);
             }

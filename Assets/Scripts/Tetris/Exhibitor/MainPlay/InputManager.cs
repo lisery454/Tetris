@@ -19,13 +19,16 @@ namespace Tetris {
             if (Input.GetKeyDown(keyConfig.KeyCode_Left)) {
                 SendCommand(new MoveBoxCmd(MoveDir.Left));
             }
-            else if (Input.GetKeyDown(keyConfig.KeyCode_Right)) {
+
+            if (Input.GetKeyDown(keyConfig.KeyCode_Right)) {
                 SendCommand(new MoveBoxCmd(MoveDir.Right));
             }
-            else if (Input.GetKeyDown(keyConfig.KeyCode_Down)) {
+
+            if (Input.GetKeyDown(keyConfig.KeyCode_Down)) {
                 SendCommand(new MoveBoxCmd(MoveDir.Down));
             }
-            else if (Input.GetKeyDown(keyConfig.KeyCode_Rot)) {
+
+            if (Input.GetKeyDown(keyConfig.KeyCode_Rot)) {
                 SendCommand<RotBoxCmd>();
             }
         }
