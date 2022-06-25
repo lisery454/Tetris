@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: SoundClips
+  m_EditorClassIdentifier: 
+  m_GroupName: SoundClips
+  m_Data:
+    m_SerializedData: []
+  m_GUID: dccb9cc3138a84d46a09dd511d65604a
+  m_SerializeEntries:
+  - m_GUID: 6249256a13b413241a8a11006d23ef50
+    m_Address: Assets/Sounds/SoundClips/BG.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SoundClip
+  - m_GUID: 45f18e964640a1b4297a47fe00520919
+    m_Address: Assets/Sounds/SoundClips/ClickBtn.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SoundClip
+  - m_GUID: 7658cf57e08e499438da8928e881172b
+    m_Address: Assets/Sounds/SoundClips/Eliminate.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SoundClip
+  - m_GUID: 0ec22926d5ad4b44bbccce8e0b824959
+    m_Address: Assets/Sounds/SoundClips/End.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SoundClip
+  - m_GUID: 372004f20b4127540917ecc85d4b6b43
+    m_Address: Assets/Sounds/SoundClips/SettingChange.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SoundClip
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: c43c1b668f9aa2740a89e8e339aeba30, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 44958928be167b24b83e37f192336b41, type: 2}
+    - {fileID: 11400000, guid: c390d68f289a2d548a2d1939d7978cda, type: 2}

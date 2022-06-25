@@ -67,13 +67,14 @@ namespace Tetris {
                 SaveConfig<KeyConfig>("Config/KeyConfig.yaml", YamlConfig.WriteConfig);
                 SaveConfig<RecordConfig>("Config/RecordConfig.yaml", YamlConfig.WriteConfig);
             };
-            
-            //背景音
-            PlayGlobalSound("BG");
 
-
-            //转到开始场景
-            GotoScene("StartUI");
+            //加载声音
+            SoundManager.LoadSoundClips("SoundClip", handle => {
+                //背景音
+                PlayGlobalSound("BG");
+                //转到开始场景
+                GotoScene("StartUI");
+            });
         }
 
         private void InitLoadScenePic() {

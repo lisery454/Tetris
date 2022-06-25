@@ -52,10 +52,10 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\Helpers\SampleAttribute.cs" />
      <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\LoadingAYamlStream.cs" />
-     <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\ConvertYamlToJson.cs" />
      <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\Helpers\ExampleRunner.cs" />
+     <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\Helpers\SampleAttribute.cs" />
+     <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\ConvertYamlToJson.cs" />
      <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\SerializeObjectGraph.cs" />
      <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\DeserializeObjectGraph.cs" />
      <Compile Include="Assets\Scripts\Framework\Utils\YamlDotNet\Examples\Helpers\ITestOutputHelper.cs" />

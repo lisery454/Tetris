@@ -52,8 +52,8 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Runtime\CompatibilityAssetBundleManifest.cs" />
      <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Runtime\Shared\BundleDetails.cs" />
+     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Runtime\CompatibilityAssetBundleManifest.cs" />
      <None Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Runtime\Unity.ScriptableBuildPipeline.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>D:/Unity/2020.3.27f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

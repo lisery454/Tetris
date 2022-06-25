@@ -52,12 +52,12 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\Util.cs" />
      <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\CacheServerUploader.cs" />
-     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\FileDownloadItem.cs" />
      <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\CacheServerUploaderWindow.cs" />
-     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\IDownloadItem.cs" />
      <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\Client.cs" />
+     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\FileDownloadItem.cs" />
+     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\Util.cs" />
+     <Compile Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\IDownloadItem.cs" />
      <None Include="Library\PackageCache\com.unity.scriptablebuildpipeline@1.19.5\Editor\CacheServer\UnityEditor.CacheServer.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>D:/Unity/2020.3.27f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

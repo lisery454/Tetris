@@ -1,33 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace FrameWork {
     [Serializable]
     public class SoundManager : ICanPlaySound {
         [SerializeField] private List<SoundClip> SoundClips;
-        [SerializeField] private AudioSource SFXAudioSources;
-        [SerializeField] private AudioSource GlobalAudioSources;
+        [SerializeField] private AudioSource audioSource;
+
+        public void LoadSoundClips(string label, Action<AsyncOperationHandle<IList<SoundClip>>> OnCompleted) {
+            Addressables.LoadResourceLocationsAsync(label).Completed += handle => {
+                Addressables.LoadAssetsAsync<SoundClip>(handle.Result, clip => { SoundClips.Add(clip); }).Completed +=
+                    OnCompleted;
+            };
+        }
+
+        public void ReleaseSoundClips() {
+            foreach (var soundClip in SoundClips) {
+                Addressables.Release(soundClip);
+            }
+        }
 
         public void PlayGlobalSound(string name) {
             var soundClip = SoundClips.Find(s => s.clipName == name);
             if (soundClip != null) {
-                GlobalAudioSources.clip = soundClip.clip;
-                GlobalAudioSources.loop = soundClip.isLoop;
-                GlobalAudioSources.volume = soundClip.volume;
+                audioSource.clip = soundClip.clip;
+                audioSource.loop = soundClip.isLoop;
+                audioSource.volume = soundClip.volume;
 
-                GlobalAudioSources.Play();
+                audioSource.Play();
             }
         }
 
         public void StopGlobalSound() {
-            GlobalAudioSources.Stop();
+            audioSource.Stop();
         }
 
         public void PlaySFX(string name, float volumeFactor = 0) {
             var soundClip = SoundClips.Find(s => s.clipName == name);
             if (soundClip != null) {
-                SFXAudioSources.PlayOneShot(soundClip.clip, soundClip.volume * volumeFactor);
+                audioSource.PlayOneShot(soundClip.clip, soundClip.volume * volumeFactor);
             }
         }
     }

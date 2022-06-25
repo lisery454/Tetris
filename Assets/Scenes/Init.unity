@@ -393,8 +393,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 7658cf57e08e499438da8928e881172b, type: 2}
     - {fileID: 11400000, guid: 0ec22926d5ad4b44bbccce8e0b824959, type: 2}
     - {fileID: 11400000, guid: 372004f20b4127540917ecc85d4b6b43, type: 2}
-    SFXAudioSources: {fileID: 1377136403}
-    GlobalAudioSources: {fileID: 1377136403}
+    audioSource: {fileID: 1377136403}
   sceneLoadPicMaskTransform: {fileID: 996738350}
   sceneLoadSquarePrefab: {fileID: 7850258856458947721, guid: 0c1c7872f1b6c394bb281501a7cac318, type: 3}
   Barrier: {fileID: 1562056213}
