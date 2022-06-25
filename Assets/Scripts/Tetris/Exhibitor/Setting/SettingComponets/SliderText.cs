@@ -1,18 +1,22 @@
-using UnityEngine;
+using FrameWork;
 using UnityEngine.UI;
 
 namespace Tetris {
-    public class SliderText : MonoBehaviour {
+    public class SliderText : Exhibitor {
         private Text ValueText { get; set; }
         public Text TitleText { get; set; }
-        private Slider slider { get; set; }
+        public Slider slider { get; set; }
 
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
             ValueText = transform.Find("Value").GetComponent<Text>();
             TitleText = transform.Find("Title").GetComponent<Text>();
             slider = GetComponent<Slider>();
-            slider.onValueChanged.AddListener(value => { ValueText.text = ((int) value).ToString(); });
+            slider.onValueChanged.AddListener(
+                value => {
+                    ValueText.text = ((int) value).ToString();
+                });
         }
 
         public float SliderValue {

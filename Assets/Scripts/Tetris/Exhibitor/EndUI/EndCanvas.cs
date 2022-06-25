@@ -11,9 +11,18 @@ public class EndCanvas : Exhibitor {
     [SerializeField] private Text maxScoreText;
 
     private void Start() {
-        againBtn.onClick.AddListener(() => { GotoScene("MainPlay"); });
-        backBtn.onClick.AddListener(() => { GotoScene("StartUI"); });
-        exitBtn.onClick.AddListener(() => { GotoScene("Exit"); });
+        againBtn.onClick.AddListener(() => {
+            PlaySFX("ClickBtn");
+            GotoScene("MainPlay");
+        });
+        backBtn.onClick.AddListener(() => {
+            PlaySFX("ClickBtn");
+            GotoScene("StartUI");
+        });
+        exitBtn.onClick.AddListener(() => {
+            PlaySFX("ClickBtn");
+            GotoScene("Exit");
+        });
         scoreText.text = GetModel<ScoreModel>().Score.ToString();
         maxScoreText.text = GetConfig<RecordConfig>().MaxScore.ToString();
     }

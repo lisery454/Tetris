@@ -9,11 +9,20 @@ namespace Tetris {
         [SerializeField] private Button exitBtn;
 
         private void Start() {
-            startBtn.onClick.AddListener(() => { GotoScene("MainPlay"); });
+            startBtn.onClick.AddListener(() => {
+                PlaySFX("ClickBtn");
+                GotoScene("MainPlay");
+            });
 
-            settingBtn.onClick.AddListener(() => { GotoScene("Setting"); });
+            settingBtn.onClick.AddListener(() => {
+                PlaySFX("ClickBtn");
+                GotoScene("Setting");
+            });
 
-            exitBtn.onClick.AddListener(() => { GotoScene("Exit"); });
+            exitBtn.onClick.AddListener(() => {
+                PlaySFX("ClickBtn");
+                GotoScene("Exit");
+            });
         }
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace FrameWork {
-    public interface IGame : ICanGetConfig, ICanChangeScene, ICanSaveConfig, ICanAddConfig {
+    public interface IGame : ICanGetConfig, ICanChangeScene, ICanSaveConfig, ICanAddConfig, ICanPlaySound {
         Action OnUpdate { get; set; } //给Node调用的时间接口
     }
 
@@ -113,7 +113,7 @@ namespace FrameWork {
 
         private void ExitGame() {
             OnExitGame?.Invoke();
-            
+
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -172,6 +172,24 @@ namespace FrameWork {
                 yield return AfterLoadSceneAnim[sceneName].Invoke();
             else if (DefaultAfterLoadSceneAnim != null)
                 yield return DefaultAfterLoadSceneAnim.Invoke();
+        }
+
+        #endregion
+
+        #region Sound
+
+        public SoundManager SoundManager;
+
+        public void PlayGlobalSound(string clipName) {
+            SoundManager.PlayGlobalSound(clipName);
+        }
+
+        public void StopGlobalSound() {
+            SoundManager.StopGlobalSound();
+        }
+
+        public void PlaySFX(string clipName, float volumeFactor = 1) {
+            SoundManager.PlaySFX(clipName, volumeFactor);
         }
 
         #endregion

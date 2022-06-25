@@ -219,6 +219,8 @@ namespace Tetris {
             var staticBoxInfos = gameModel.StaticBoxInfos;
             bool isAllLineBox, isAllLineNotBox;
 
+            var maxEliminateCount = 0;
+
             var eliminateCount = 0;
 
             for (var h = 0; h < height;) {
@@ -244,6 +246,8 @@ namespace Tetris {
                 }
                 else {
                     if (eliminateCount != 0) {
+                        if (eliminateCount > maxEliminateCount)
+                            maxEliminateCount = eliminateCount;
                         //移动
                         for (var nh = h; nh < height; nh++) {
                             for (var nw = 0; nw < width; nw++) {
@@ -273,6 +277,10 @@ namespace Tetris {
                     }
                 }
             }
+
+            if (maxEliminateCount > 0) {
+                TriggerEvent(new EliminateEvt(maxEliminateCount));
+            }
         }
 
         /// <summary>
@@ -286,7 +294,7 @@ namespace Tetris {
                     //记录最高分
                     if (GetConfig<RecordConfig>().MaxScore < scoreModel.Score)
                         GetConfig<RecordConfig>().MaxScore = scoreModel.Score;
-                    
+
                     //触发游戏失败事件
                     TriggerEvent<GameEndEvt>();
 

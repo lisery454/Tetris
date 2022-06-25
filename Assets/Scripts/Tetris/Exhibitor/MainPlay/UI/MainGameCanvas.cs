@@ -8,11 +8,19 @@ namespace Tetris {
         [SerializeField] private Text scoreText;
 
         private void Start() {
-            backBtn.onClick.AddListener(() => { GotoScene("StartUI"); });
+            backBtn.onClick.AddListener(() => {
+                PlaySFX("ClickBtn");
+                GotoScene("StartUI");
+            });
 
-            AddEventListener<GameEndEvt>(evt => { GotoScene("EndUI"); });
+            AddEventListener<GameEndEvt>(evt => {
+                PlaySFX("End");
+                GotoScene("EndUI");
+            });
 
             AddEventListener<ScoreUpdateEvt>(evt => { scoreText.text = evt.Score.ToString(); });
+
+            AddEventListener<EliminateEvt>(evt => { PlaySFX("Eliminate", evt.level); });
         }
     }
 }

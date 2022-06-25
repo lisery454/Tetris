@@ -1,8 +1,10 @@
+using FrameWork;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Event = UnityEngine.Event;
 
-public class KeyCodeText : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {
+public class KeyCodeText : Exhibitor, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {
     private Text keyValueText;
     [HideInInspector] public Text keyNameText;
     private KeyCode keyCode;
@@ -21,7 +23,8 @@ public class KeyCodeText : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
         }
     }
 
-    private void Awake() {
+    protected override void Awake() {
+        base.Awake();
         image = GetComponent<Image>();
         originalColor = image.color;
 
@@ -33,6 +36,7 @@ public class KeyCodeText : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
 
 
     public void OnPointerClick(PointerEventData eventData) {
+        PlaySFX("SettingChange");
         if (!isListenCode) {
             isListenCode = true;
             image.color = selectedColor;
@@ -47,6 +51,8 @@ public class KeyCodeText : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     private void OnGUI() {
         if (isListenCode) {
             if (Input.anyKeyDown) {
+                PlaySFX("SettingChange");
+
                 var currentEvent = Event.current;
                 isListenCode = false;
 

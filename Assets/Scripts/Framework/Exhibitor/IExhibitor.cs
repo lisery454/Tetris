@@ -4,10 +4,9 @@ using UnityEngine.SceneManagement;
 
 namespace FrameWork {
     public interface IExhibitor : IBelongedLeader, ICanSendCommand, ICanAddEventListener, ICanGetModel,
-        ICanGetConfig, ICanChangeScene, ICanSaveConfig { }
-    
-    
-    
+        ICanGetConfig, ICanChangeScene, ICanSaveConfig, ICanPlaySound { }
+
+
     /// <summary>
     /// 展示者，用来呈现
     /// 一般来说展示者自己可以解决的简单逻辑自己解决
@@ -73,6 +72,22 @@ namespace FrameWork {
 
         public void SaveConfig<TConfig>(string path, Action<string, TConfig> Writer) where TConfig : class, IConfig {
             BelongedLeader.BelongedGame.SaveConfig(path, Writer);
+        }
+
+        #endregion
+
+        #region ICanPlaySound
+
+        public void PlayGlobalSound(string clipName) {
+            BelongedLeader.BelongedGame.PlayGlobalSound(clipName);
+        }
+
+        public void StopGlobalSound() {
+            BelongedLeader.BelongedGame.StopGlobalSound();
+        }
+
+        public void PlaySFX(string clipName, float volumeFactor = 1) {
+            BelongedLeader.BelongedGame.PlaySFX(clipName, volumeFactor);
         }
 
         #endregion

@@ -31,10 +31,13 @@ namespace Tetris {
         private void Start() {
             LimitHeightSlider.SetMaxAndMin(gameConfig.LimitHeightMax, gameConfig.LimitHeightMin);
             LimitHeightSlider.SliderValue = gameConfig.LimitHeight;
+            LimitHeightSlider.slider.onValueChanged.AddListener(_ => { PlaySFX("SettingChange"); });
             FallSpeedSlider.SetMaxAndMin(gameConfig.FallSpeedMax, gameConfig.FallSpeedMin);
             FallSpeedSlider.SliderValue = (int) Mathf.Round(1f / gameConfig.FallInterval);
+            FallSpeedSlider.slider.onValueChanged.AddListener(_ => { PlaySFX("SettingChange"); });
             SpeedUpSlider.SliderValue = gameConfig.SpeedUpFactor;
             SpeedUpSlider.SetMaxAndMin(gameConfig.SpeedUpFactorMax, gameConfig.SpeedUpFactorMin);
+            SpeedUpSlider.slider.onValueChanged.AddListener(_ => { PlaySFX("SettingChange"); });
 
             LimitHeightSlider.TitleText.text = "Limit Height";
             FallSpeedSlider.TitleText.text = "Speed";
@@ -53,7 +56,10 @@ namespace Tetris {
             SpeedUpKeyCodeText.keyNameText.text = "SpeedUp";
 
 
-            backBtn.onClick.AddListener(() => { GotoScene("StartUI"); });
+            backBtn.onClick.AddListener(() => {
+                PlaySFX("ClickBtn");
+                GotoScene("StartUI");
+            });
             saveBtn.onClick.AddListener(() => {
                 gameConfig.LimitHeight = (int) LimitHeightSlider.SliderValue;
                 gameConfig.FallInterval = 1f / FallSpeedSlider.SliderValue;
@@ -68,6 +74,8 @@ namespace Tetris {
 
                 SaveConfig<GameConfig>("Config/GameConfig.yaml", YamlConfig.WriteConfig);
                 SaveConfig<KeyConfig>("Config/KeyConfig.yaml", YamlConfig.WriteConfig);
+
+                PlaySFX("ClickBtn");
 
                 GotoScene("StartUI");
             });

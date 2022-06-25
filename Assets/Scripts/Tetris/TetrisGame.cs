@@ -67,6 +67,9 @@ namespace Tetris {
                 SaveConfig<KeyConfig>("Config/KeyConfig.yaml", YamlConfig.WriteConfig);
                 SaveConfig<RecordConfig>("Config/RecordConfig.yaml", YamlConfig.WriteConfig);
             };
+            
+            //背景音
+            PlayGlobalSound("BG");
 
 
             //转到开始场景
