@@ -7,7 +7,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 namespace FrameWork {
     [Serializable]
     public class SoundManager : ICanPlaySound {
-        [SerializeField] private List<SoundClip> SoundClips;
+        private List<SoundClip> SoundClips = new List<SoundClip>();
         [SerializeField] private AudioSource audioSource;
 
         public void LoadSoundClips(string label, Action<AsyncOperationHandle<IList<SoundClip>>> OnCompleted) {
@@ -21,6 +21,8 @@ namespace FrameWork {
             foreach (var soundClip in SoundClips) {
                 Addressables.Release(soundClip);
             }
+            
+            SoundClips.Clear();
         }
 
         public void PlayGlobalSound(string name) {
