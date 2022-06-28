@@ -3,7 +3,7 @@
 namespace Tetris {
     public class StartGameCmd : Command {
         protected override void OnExecute() {
-            GetOperation<TetrisLogicOperation>().StartGame();
+            GetNode<TetrisLogicOperation>().StartGame();
         }
     }
 }

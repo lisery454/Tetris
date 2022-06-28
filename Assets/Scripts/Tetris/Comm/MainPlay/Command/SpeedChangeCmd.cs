@@ -10,7 +10,7 @@ namespace Tetris {
 
 
         protected override void OnExecute() {
-            GetOperation<TetrisLogicOperation>().SpeedChange(isSpeedUp);
+            GetNode<TetrisLogicOperation>().SpeedChange(isSpeedUp);
         }
     }
 }

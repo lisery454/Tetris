@@ -18,9 +18,9 @@ namespace Tetris {
         protected override void Awake() {
             base.Awake();
             //配置
-            AddConfig("Config/GameConfig.yaml", YamlConfig.ReadConfig<GameConfig>);
-            AddConfig("Config/KeyConfig.yaml", YamlConfig.ReadConfig<KeyConfig>);
-            AddConfig("Config/RecordConfig.yaml", YamlConfig.ReadConfig<RecordConfig>);
+            ConfigController.AddConfig("Config/GameConfig.yaml", YamlConfig.ReadConfig<GameConfig>);
+            ConfigController.AddConfig("Config/KeyConfig.yaml", YamlConfig.ReadConfig<KeyConfig>);
+            ConfigController.AddConfig("Config/RecordConfig.yaml", YamlConfig.ReadConfig<RecordConfig>);
 
 
             //默认加载动画
@@ -28,25 +28,22 @@ namespace Tetris {
             DefaultAfterLoadSceneAnim = DefaultAfterSceneLoad;
 
             //在开始加载场景时
-            OnStartLoadScene.Add("StartUI", () => { LeaderFactory.CreateLeader("StartUI"); });
-            OnStartLoadScene.Add("MainPlay", () => {
-                var leader = LeaderFactory.CreateLeader("MainPlay");
-                leader.Register(new TetrisGameModel());
-                leader.Register(new ScoreModel());
-                leader.Register(new TetrisLogicOperation());
+            OnBeforeLoadScene.Add("MainPlay", () => {
+                NodeController.Register(new TetrisGameModel());
+                NodeController.Register(new ScoreModel());
+                NodeController.Register(new TetrisLogicOperation());
             });
-            OnStartLoadScene.Add("EndUI", () => {
-                var leader = LeaderFactory.CreateLeader("EndUI");
-                leader.RegisterWithoutInit(LeaderFactory.GetLeader("MainPlay").GetModel<ScoreModel>());
+            OnBeforeLoadScene.Add("EndUI", () => {
+                var scoreModel = NodeController.GetNode<ScoreModel>();
+                NodeController.UnRegisterAll();
+                NodeController.RegisterWithoutInit(scoreModel);
             });
-            OnStartLoadScene.Add("Setting", () => { LeaderFactory.CreateLeader("Setting"); });
-
 
             //初始化场景变换的动画
             InitLoadScenePic();
 
             //当场景切换到MainPlay时， 根据分辨率修正场景中 摄像机范围大小
-            OnViewUpdate["MainPlay"] = (width, height) => {
+            GameViewListener.OnViewChange["MainPlay"] = (width, height) => {
                 var main = Camera.main;
 
                 if (main != null) {
@@ -63,15 +60,15 @@ namespace Tetris {
 
             //结束时保存Config
             OnExitGame += () => {
-                SaveConfig<GameConfig>("Config/GameConfig.yaml", YamlConfig.WriteConfig);
-                SaveConfig<KeyConfig>("Config/KeyConfig.yaml", YamlConfig.WriteConfig);
-                SaveConfig<RecordConfig>("Config/RecordConfig.yaml", YamlConfig.WriteConfig);
+                ConfigController.SaveConfig<GameConfig>("Config/GameConfig.yaml", YamlConfig.WriteConfig);
+                ConfigController.SaveConfig<KeyConfig>("Config/KeyConfig.yaml", YamlConfig.WriteConfig);
+                ConfigController.SaveConfig<RecordConfig>("Config/RecordConfig.yaml", YamlConfig.WriteConfig);
             };
 
             //加载声音
             SoundManager.LoadSoundClips("SoundClip", handle => {
                 //背景音
-                PlayGlobalSound("BG");
+                SoundManager.PlayGlobalSound("BG");
                 //转到开始场景
                 GotoScene("StartUI");
             });

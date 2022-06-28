@@ -5,103 +5,43 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace FrameWork {
-    public interface IGame : ICanGetConfig, ICanChangeScene, ICanSaveConfig, ICanAddConfig, ICanPlaySound {
+    public interface IGame : ICanChangeScene {
         Action OnUpdate { get; set; } //给Node调用的时间接口
+
+
+        ConfigController ConfigController { get; set; }
+        NodeController NodeController { get; set; }
+        EventDispatcher EventDispatcher { get; set; }
+        CommandController CommandController { get; set; }
+        SoundManager SoundManager { get; set; }
     }
 
     public abstract class Game : MonoBehaviour, IGame {
         protected virtual void Awake() {
-            LeaderFactory = new LeaderFactory(this);
+            NodeController = new NodeController(this);
+            EventDispatcher = new EventDispatcher();
+            CommandController = new CommandController(this);
+            ConfigController = new ConfigController();
+            SoundManager = new SoundManager(gameObject.AddComponent<AudioSource>());
+            GameViewListener = new GameViewListener();
+
+            BeforeLoadSceneAnim = new Dictionary<string, Func<IEnumerator>>();
+            AfterLoadSceneAnim = new Dictionary<string, Func<IEnumerator>>();
+            OnHaveLeftScene = new Dictionary<string, Action>();
+            OnBeforeLoadScene = new Dictionary<string, Action>();
+            OnAfterLoadScene = new Dictionary<string, Action>();
             DontDestroyOnLoad(this);
         }
 
-        #region Leader
-
-        public LeaderFactory LeaderFactory;
-
-        #endregion
-
-        #region Config
-
-        private readonly ConfigController ConfigController = new ConfigController();
-
-        public void AddConfig<TConfig>(string path, Func<string, TConfig> Reader)
-            where TConfig : class, IConfig {
-            var config = Reader.Invoke(path);
-            ConfigController.AddConfig(config);
-        }
-
-        public void RemoveConfig<TConfig>() where TConfig : class, IConfig {
-            ConfigController.RemoveConfig<TConfig>();
-        }
-
-        public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
-            return ConfigController.GetConfig<TConfig>();
-        }
-
-        public virtual void SaveConfig<TConfig>(string path, Action<string, TConfig> Writer)
-            where TConfig : class, IConfig {
-            Writer.Invoke(path, GetConfig<TConfig>());
-        }
-
-        #endregion
-
-        #region Update
-
-        public Action OnUpdate { get; set; } //给Node调用的时间接口
 
         private void Update() {
             OnUpdate?.Invoke();
-            ViewListenerUpdate();
+            //监听分辨率变化
+            GameViewListener.ViewListenerUpdate();
         }
-
-        #endregion
-
-        #region GameViewListener
-
-        private int lastWidth { get; set; }
-        private int lastHeight { get; set; }
-
-        private void ViewListenerUpdate() {
-            if (lastWidth != Screen.width ||
-                lastHeight != Screen.height) {
-                lastWidth = Screen.width;
-                lastHeight = Screen.height;
-
-
-                var sceneName = SceneManager.GetActiveScene().name;
-                if (OnViewUpdate.ContainsKey(sceneName))
-                    OnViewUpdate[sceneName].Invoke(lastWidth, lastHeight);
-            }
-        }
-
-        //当某个场景中，分辨率改变时时启用的操作
-        //先宽后高
-        protected readonly Dictionary<string, Action<int, int>> OnViewUpdate =
-            new Dictionary<string, Action<int, int>>();
-
-        #endregion
-
-        #region Scene
-
-        protected readonly Dictionary<string, Func<IEnumerator>> BeforeLoadSceneAnim =
-            new Dictionary<string, Func<IEnumerator>>();
-
-        protected readonly Dictionary<string, Func<IEnumerator>> AfterLoadSceneAnim =
-            new Dictionary<string, Func<IEnumerator>>();
-
-        protected Func<IEnumerator> DefaultBeforeLoadSceneAnim, DefaultAfterLoadSceneAnim;
-
-        protected readonly Dictionary<string, Action> OnLeaveSceneAfterOtherSceneLoaded =
-            new Dictionary<string, Action>();
-
-        protected readonly Dictionary<string, Action> OnStartLoadScene = new Dictionary<string, Action>();
-        protected readonly Dictionary<string, Action> OnEndLoadScene = new Dictionary<string, Action>();
-
-        protected Action OnExitGame = null;
-
 
         public void GotoScene(string sceneName) {
+            //如果是"Exit"，就退出游戏
             if (sceneName == "Exit") {
                 ExitGame();
                 return;
@@ -122,13 +62,15 @@ namespace FrameWork {
         }
 
         protected virtual IEnumerator ChangeSceneCoroutine(string sceneName) {
+            //清空update中的调用方法
             OnUpdate = null;
 
+            //获取前一个场景的名字
             var beforeSceneName = SceneManager.GetActiveScene().name;
 
             //开始加载场景时
-            if (OnStartLoadScene.ContainsKey(sceneName))
-                OnStartLoadScene[sceneName]?.Invoke();
+            if (OnBeforeLoadScene.ContainsKey(sceneName))
+                OnBeforeLoadScene[sceneName]?.Invoke();
 
 
             //加载场景动画开始
@@ -148,24 +90,21 @@ namespace FrameWork {
             yield return new WaitForEndOfFrame();
             op.allowSceneActivation = true;
 
-            //移除leader
-            LeaderFactory.RemoveLeader("beforeSceneName");
-
             //离开之前场景时（已经加载完了）
-            if (OnLeaveSceneAfterOtherSceneLoaded.ContainsKey(beforeSceneName))
-                OnLeaveSceneAfterOtherSceneLoaded[beforeSceneName]?.Invoke();
+            if (OnHaveLeftScene.ContainsKey(beforeSceneName))
+                OnHaveLeftScene[beforeSceneName]?.Invoke();
 
             //结束加载时
-            if (OnEndLoadScene.ContainsKey(sceneName))
-                OnEndLoadScene[sceneName]?.Invoke();
+            if (OnAfterLoadScene.ContainsKey(sceneName))
+                OnAfterLoadScene[sceneName]?.Invoke();
 
             //等待所有物体awake，但是还没有渲染
             yield return null;
-            //yield return null;
 
             //场景加载开始适配分辨率
-            if (OnViewUpdate.ContainsKey(sceneName))
-                OnViewUpdate[sceneName].Invoke(lastWidth, lastHeight);
+            if (GameViewListener.OnViewChange.ContainsKey(sceneName))
+                GameViewListener.OnViewChange[sceneName]
+                    .Invoke(GameViewListener.lastWidth, GameViewListener.lastHeight);
 
             //加载场景动画结束
             if (AfterLoadSceneAnim.ContainsKey(sceneName) && AfterLoadSceneAnim[sceneName] != null)
@@ -174,29 +113,31 @@ namespace FrameWork {
                 yield return DefaultAfterLoadSceneAnim.Invoke();
         }
 
-        #endregion
 
-        #region Sound
+        public SoundManager SoundManager { get; set; }
+        public NodeController NodeController { get; set; }
+        public EventDispatcher EventDispatcher { get; set; }
+        public CommandController CommandController { get; set; }
+        public ConfigController ConfigController { get; set; }
+        public GameViewListener GameViewListener { get; set; }
 
-        public SoundManager SoundManager;
+        public Action OnUpdate { get; set; } //给Node调用的时间接口
 
-        public void PlayGlobalSound(string clipName) {
-            SoundManager.PlayGlobalSound(clipName);
-        }
+        //每个场景自己的加载动画
+        protected Dictionary<string, Func<IEnumerator>> BeforeLoadSceneAnim, AfterLoadSceneAnim;
 
-        public void StopGlobalSound() {
-            SoundManager.StopGlobalSound();
-        }
+        //默认加载动画
+        protected Func<IEnumerator> DefaultBeforeLoadSceneAnim, DefaultAfterLoadSceneAnim;
 
-        public void PlaySFX(string clipName, float volumeFactor = 1) {
-            SoundManager.PlaySFX(clipName, volumeFactor);
-        }
+        //离开和进入的一些行为
+        protected Dictionary<string, Action> OnHaveLeftScene, OnBeforeLoadScene, OnAfterLoadScene;
 
-        #endregion
+        //离开游戏的行为
+        protected Action OnExitGame;
     }
 
     public interface IBelongedToGame {
-        IGame BelongedGame { get; }
+        IGame BelongedGame { get; set; }
     }
 
     public interface ICanChangeScene {

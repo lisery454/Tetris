@@ -1,36 +1,34 @@
 ﻿namespace FrameWork {
-    public class NodeController {
-        private readonly IOCContainer<INode> IocContainer;
+    public class NodeController : IBelongedToGame, ICanGetNode, ICanRegisterNode {
+        private readonly IOCContainer<INode> IocContainer = new IOCContainer<INode>();
 
-        private readonly Leader BelongedLeader;
-
-        public NodeController(Leader belongedLeader) {
-            BelongedLeader = belongedLeader;
-            IocContainer = new IOCContainer<INode>();
-        }
-
-        public T GetOperation<T>() where T : class, IOperation {
-            return IocContainer.Get<T>();
-        }
-
-        public T GetModel<T>() where T : class, IModel {
-            return IocContainer.Get<T>();
+        public NodeController(IGame belongedGame) {
+            BelongedGame = belongedGame;
         }
 
         public void Register<T>(T node) where T : class, INode {
+            node.BelongedGame = BelongedGame;
             IocContainer.Add(node);
-            node.BelongedLeader = BelongedLeader;
             node.Init();
         }
 
         public void RegisterWithoutInit<T>(T node) where T : class, INode {
+            node.BelongedGame = BelongedGame;
             IocContainer.Add(node);
-            node.BelongedLeader = BelongedLeader;
         }
 
-        public void UnRegister<T>(T node) where T : class, INode {
+        public void UnRegister<T>() where T : class, INode {
             IocContainer.Remove<T>();
-            node.BelongedLeader = null;
         }
+
+        public T GetNode<T>() where T : class, INode {
+            return IocContainer.Get<T>();
+        }
+
+        public void UnRegisterAll() {
+            IocContainer.RemoveAll();
+        }
+
+        public IGame BelongedGame { get; set; }
     }
 }

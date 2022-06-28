@@ -29,8 +29,8 @@ namespace Tetris {
         private static int colorWheelNum = 12;
 
         public override void Init() {
-            gameModel = GetModel<TetrisGameModel>();
-            scoreModel = GetModel<ScoreModel>();
+            gameModel = GetNode<TetrisGameModel>();
+            scoreModel = GetNode<ScoreModel>();
             gameConfig = GetConfig<GameConfig>();
             OperationQueue = new Queue<Action>();
         }

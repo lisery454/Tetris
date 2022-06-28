@@ -16,7 +16,7 @@ namespace Tetris {
         }
 
         protected override void OnExecute() {
-            GetOperation<TetrisLogicOperation>().MoveBox(moveDir);
+            GetNode<TetrisLogicOperation>().MoveBox(moveDir);
         }
     }
 }

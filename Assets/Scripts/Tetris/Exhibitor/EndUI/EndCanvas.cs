@@ -23,7 +23,7 @@ public class EndCanvas : Exhibitor {
             PlaySFX("ClickBtn");
             GotoScene("Exit");
         });
-        scoreText.text = GetModel<ScoreModel>().Score.ToString();
+        scoreText.text = GetNode<ScoreModel>().Score.ToString();
         maxScoreText.text = GetConfig<RecordConfig>().MaxScore.ToString();
     }
 }

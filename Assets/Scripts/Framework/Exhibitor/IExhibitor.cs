@@ -1,9 +1,8 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace FrameWork {
-    public interface IExhibitor : IBelongedLeader, ICanSendCommand, ICanAddEventListener, ICanGetModel,
+    public interface IExhibitor : IBelongedToGame, ICanSendCommand, ICanAddEventListener, ICanGetNode,
         ICanGetConfig, ICanChangeScene, ICanSaveConfig, ICanPlaySound { }
 
 
@@ -14,20 +13,20 @@ namespace FrameWork {
     /// 可以读model，但是不要改
     /// </summary>
     public abstract class Exhibitor : MonoBehaviour, IExhibitor {
-        public ILeader BelongedLeader { get; set; }
+        IGame IBelongedToGame.BelongedGame { get; set; }
 
         protected virtual void Awake() {
-            BelongedLeader = FindObjectOfType<Game>().LeaderFactory.GetLeader(SceneManager.GetActiveScene().name);
+            (this as IBelongedToGame).BelongedGame = FindObjectOfType<Game>();
         }
 
         #region ICanSendCommand
 
         public void SendCommand<T>() where T : ICommand, new() {
-            BelongedLeader.SendCommand<T>();
+            (this as IBelongedToGame).BelongedGame.CommandController.SendCommand<T>();
         }
 
         public void SendCommand<T>(T command) where T : ICommand {
-            BelongedLeader.SendCommand(command);
+            (this as IBelongedToGame).BelongedGame.CommandController.SendCommand(command);
         }
 
         #endregion
@@ -35,19 +34,19 @@ namespace FrameWork {
         #region ICanAddEventListener
 
         public IEventRemover AddEventListener<T>(OnEvent<T> onEvent) where T : IEvent {
-            return BelongedLeader.AddEventListener(onEvent);
+            return (this as IBelongedToGame).BelongedGame.EventDispatcher.AddEventListener(onEvent);
         }
 
         public void RemoveEventListener<T>(OnEvent<T> onEvent) where T : IEvent {
-            BelongedLeader.RemoveEventListener(onEvent);
+            (this as IBelongedToGame).BelongedGame.EventDispatcher.RemoveEventListener(onEvent);
         }
 
         #endregion
 
-        #region ICanGetModel
+        #region ICanGetNode
 
-        public T GetModel<T>() where T : class, IModel {
-            return BelongedLeader.GetModel<T>();
+        public T GetNode<T>() where T : class, INode {
+            return (this as IBelongedToGame).BelongedGame.NodeController.GetNode<T>();
         }
 
         #endregion
@@ -55,7 +54,7 @@ namespace FrameWork {
         #region ICanGetConfig
 
         public TConfig GetConfig<TConfig>() where TConfig : class, IConfig {
-            return BelongedLeader.GetConfig<TConfig>();
+            return (this as IBelongedToGame).BelongedGame.ConfigController.GetConfig<TConfig>();
         }
 
         #endregion
@@ -63,7 +62,7 @@ namespace FrameWork {
         #region ICanChangeScene
 
         public void GotoScene(string sceneName) {
-            BelongedLeader.BelongedGame.GotoScene(sceneName);
+            (this as IBelongedToGame).BelongedGame.GotoScene(sceneName);
         }
 
         #endregion
@@ -71,7 +70,7 @@ namespace FrameWork {
         #region ICanSaveConfig
 
         public void SaveConfig<TConfig>(string path, Action<string, TConfig> Writer) where TConfig : class, IConfig {
-            BelongedLeader.BelongedGame.SaveConfig(path, Writer);
+            (this as IBelongedToGame).BelongedGame.ConfigController.SaveConfig(path, Writer);
         }
 
         #endregion
@@ -79,15 +78,15 @@ namespace FrameWork {
         #region ICanPlaySound
 
         public void PlayGlobalSound(string clipName) {
-            BelongedLeader.BelongedGame.PlayGlobalSound(clipName);
+            (this as IBelongedToGame).BelongedGame.SoundManager.PlayGlobalSound(clipName);
         }
 
         public void StopGlobalSound() {
-            BelongedLeader.BelongedGame.StopGlobalSound();
+            (this as IBelongedToGame).BelongedGame.SoundManager.StopGlobalSound();
         }
 
         public void PlaySFX(string clipName, float volumeFactor = 1) {
-            BelongedLeader.BelongedGame.PlaySFX(clipName, volumeFactor);
+            (this as IBelongedToGame).BelongedGame.SoundManager.PlaySFX(clipName, volumeFactor);
         }
 
         #endregion

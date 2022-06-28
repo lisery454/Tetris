@@ -8,7 +8,11 @@ namespace FrameWork {
     [Serializable]
     public class SoundManager : ICanPlaySound {
         private List<SoundClip> SoundClips = new List<SoundClip>();
-        [SerializeField] private AudioSource audioSource;
+        private AudioSource audioSource;
+
+        public SoundManager(AudioSource audioSource) {
+            this.audioSource = audioSource;
+        }
 
         public void LoadSoundClips(string label, Action<AsyncOperationHandle<IList<SoundClip>>> OnCompleted) {
             Addressables.LoadResourceLocationsAsync(label).Completed += handle => {
@@ -21,7 +25,7 @@ namespace FrameWork {
             foreach (var soundClip in SoundClips) {
                 Addressables.Release(soundClip);
             }
-            
+
             SoundClips.Clear();
         }
 
@@ -40,7 +44,7 @@ namespace FrameWork {
             audioSource.Stop();
         }
 
-        public void PlaySFX(string name, float volumeFactor = 0) {
+        public void PlaySFX(string name, float volumeFactor = 1) {
             var soundClip = SoundClips.Find(s => s.clipName == name);
             if (soundClip != null) {
                 audioSource.PlayOneShot(soundClip.clip, soundClip.volume * volumeFactor);
